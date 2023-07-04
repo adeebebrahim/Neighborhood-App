@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1051068663882",
+    "project_id": "neighborhood-app-9bd00",
+    "storage_bucket": "neighborhood-app-9bd00.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051068663882:android:ba3c6d039872e793a57eb3",
+        "android_client_info": {
+          "package_name": "com.example.neighborhood"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1051068663882-tvpn210lumqt127qkq4u9a00307t8u2l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkyi_uDJQT08n26EMvGvqb4IHmO2PeJ1k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1051068663882-tvpn210lumqt127qkq4u9a00307t8u2l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
