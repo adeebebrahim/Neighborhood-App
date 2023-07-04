@@ -18,63 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content">-->
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:id="@+id/name"-->
-<!--            android:hint="@string/name"-->
-<!--            android:inputType="text"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content">-->
-<!--        </com.google.android.material.textfield.TextInputEditText>-->
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content">-->
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:id="@+id/mobile"-->
-<!--            android:hint="@string/mobile_no"-->
-<!--            android:inputType="phone"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content">-->
-<!--        </com.google.android.material.textfield.TextInputEditText>-->
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--    <RadioGroup-->
-<!--        android:id="@+id/genderRadioGroup"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="horizontal">-->
-
-<!--        <RadioButton-->
-<!--            android:id="@+id/maleRadioButton"-->
-<!--            android:text="@string/male"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content" />-->
-
-<!--        <RadioButton-->
-<!--            android:id="@+id/femaleRadioButton"-->
-<!--            android:text="@string/female"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content" />-->
-
-<!--    </RadioGroup>-->
-
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content">-->
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:id="@+id/dateOfBirth"-->
-<!--            android:hint="@string/date_of_birth"-->
-<!--            android:focusable="false"-->
-<!--            android:onClick="showDatePicker"-->
-<!--            android:inputType="none"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content" />-->
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
-
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -86,7 +29,6 @@
             android:layout_height="wrap_content">
         </com.google.android.material.textfield.TextInputEditText>
     </com.google.android.material.textfield.TextInputLayout>
-
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
