@@ -38,7 +38,7 @@ import java.util.Locale;
 
 public class Register extends AppCompatActivity {
 
-    TextInputEditText editTextEmail, editTextPassword, editTextConfirmPassword, editTextDateOfBirth, editTextName, editTextMobileNo;
+    TextInputEditText editTextEmail, editTextPassword, editTextConfirmPassword, editTextDateOfBirth, editTextName, editTextUsername, editTextMobileNo;
     Spinner spinnerGender;
     Button buttonReg;
     FirebaseAuth mAuth;
@@ -66,6 +66,7 @@ public class Register extends AppCompatActivity {
         databaseUsers = FirebaseDatabase.getInstance().getReference("users");
 
         editTextName = findViewById(R.id.name);
+        editTextUsername = findViewById(R.id.username);
         editTextMobileNo = findViewById(R.id.mobileNo);
         spinnerGender = findViewById(R.id.gender);
         editTextDateOfBirth = findViewById(R.id.dateOfBirth);
@@ -116,27 +117,31 @@ public class Register extends AppCompatActivity {
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
                 String name = editTextName.getText().toString().trim();
+                String username = editTextUsername.getText().toString().trim();
                 String mobileNo = editTextMobileNo.getText().toString().trim();
                 String gender = spinnerGender.getSelectedItem().toString();
                 String dateOfBirth = editTextDateOfBirth.getText().toString().trim();
                 String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
                 String confirmPassword = editTextConfirmPassword.getText().toString().trim();
+                String bio = ""; // Get the bio from the user input
+                int followerCount = 0; // Initialize the follower count
+                int followingCount = 0; // Initialize the following count
 
                 try {
-                    validateField(name, "Please enter name");
-                    validateField(mobileNo, "Please enter mobile number");
-                    validateField(gender, "Please select gender");
-                    validateField(dateOfBirth, "Please select date of birth");
-                    validateField(email, "Please enter email");
-                    validateField(password, "Please enter password");
-                    validateField(confirmPassword, "Please confirm password");
-                    validatePasswordMatch(password, confirmPassword);
-                    validateDateOfBirthFormat(dateOfBirth);
-                    validateEmailFormat(email);
-                    validateMobileNumberFormat(mobileNo);
-                    checkUniqueEmail(email);
-                    checkUniqueMobileNumber(mobileNo);
+//                    validateField(name, "Please enter name");
+//                    validateField(mobileNo, "Please enter mobile number");
+//                    validateField(gender, "Please select gender");
+//                    validateField(dateOfBirth, "Please select date of birth");
+//                    validateField(email, "Please enter email");
+//                    validateField(password, "Please enter password");
+//                    validateField(confirmPassword, "Please confirm password");
+//                    validatePasswordMatch(password, confirmPassword);
+//                    validateDateOfBirthFormat(dateOfBirth);
+//                    validateEmailFormat(email);
+//                    validateMobileNumberFormat(mobileNo);
+//                    checkUniqueEmail(email);
+//                    checkUniqueMobileNumber(mobileNo);
 
                     mAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener(Register.this, new OnCompleteListener<AuthResult>() {
@@ -146,7 +151,7 @@ public class Register extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         FirebaseUser user = mAuth.getCurrentUser();
                                         String userId = user.getUid();
-                                        User newUser = new User(name, email, mobileNo, dateOfBirth, gender);
+                                        User newUser = new User(name, email, mobileNo, dateOfBirth, gender, bio, followerCount, followingCount, username);
                                         databaseUsers.child(userId).setValue(newUser);
 
                                         Toast.makeText(Register.this, "Registration Successful.",
@@ -168,78 +173,78 @@ public class Register extends AppCompatActivity {
         });
     }
 
-    private void validateField(String value, String errorMessage) throws Exception {
-        if (TextUtils.isEmpty(value)) {
-            throw new Exception(errorMessage);
-        }
-    }
-
-    private void validatePasswordMatch(String password, String confirmPassword) throws Exception {
-        if (!password.equals(confirmPassword)) {
-            throw new Exception("Passwords do not match");
-        }
-    }
-
-    private void validateDateOfBirthFormat(String dateOfBirth) throws Exception {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
-        sdf.setLenient(false);
-        try {
-            Date dob = sdf.parse(dateOfBirth);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(dob);
-            int year = calendar.get(Calendar.YEAR);
-            if (year < 1900) {
-                throw new Exception("Invalid date of birth");
-            }
-        } catch (ParseException e) {
-            throw new Exception("Invalid date format");
-        }
-    }
-
-    private void validateEmailFormat(String email) throws Exception {
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            throw new Exception("Invalid email address");
-        }
-    }
-
-    private void validateMobileNumberFormat(String mobileNumber) throws Exception {
-        if (mobileNumber.length() != 10) {
-            throw new Exception("Invalid mobile number");
-        }
-    }
-
-    private void checkUniqueEmail(final String email) {
-        databaseUsers.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Toast.makeText(Register.this, "Email already exists", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Ignore
-            }
-        });
-    }
-
-
-    private void checkUniqueMobileNumber(String mobileNumber) throws Exception {
-        databaseUsers.orderByChild("mobileNo").equalTo(mobileNumber).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Toast.makeText(Register.this, "Mobile number already exists", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Ignore
-            }
-        });
-    }
+//    private void validateField(String value, String errorMessage) throws Exception {
+//        if (TextUtils.isEmpty(value)) {
+//            throw new Exception(errorMessage);
+//        }
+//    }
+//
+//    private void validatePasswordMatch(String password, String confirmPassword) throws Exception {
+//        if (!password.equals(confirmPassword)) {
+//            throw new Exception("Passwords do not match");
+//        }
+//    }
+//
+//    private void validateDateOfBirthFormat(String dateOfBirth) throws Exception {
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+//        sdf.setLenient(false);
+//        try {
+//            Date dob = sdf.parse(dateOfBirth);
+//            Calendar calendar = Calendar.getInstance();
+//            calendar.setTime(dob);
+//            int year = calendar.get(Calendar.YEAR);
+//            if (year < 1900) {
+//                throw new Exception("Invalid date of birth");
+//            }
+//        } catch (ParseException e) {
+//            throw new Exception("Invalid date format");
+//        }
+//    }
+//
+//    private void validateEmailFormat(String email) throws Exception {
+//        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+//            throw new Exception("Invalid email address");
+//        }
+//    }
+//
+//    private void validateMobileNumberFormat(String mobileNumber) throws Exception {
+//        if (mobileNumber.length() != 10) {
+//            throw new Exception("Invalid mobile number");
+//        }
+//    }
+//
+//    private void checkUniqueEmail(final String email) {
+//        databaseUsers.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    Toast.makeText(Register.this, "Email already exists", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                // Ignore
+//            }
+//        });
+//    }
+//
+//
+//    private void checkUniqueMobileNumber(String mobileNumber) throws Exception {
+//        databaseUsers.orderByChild("mobileNo").equalTo(mobileNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    Toast.makeText(Register.this, "Mobile number already exists", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                // Ignore
+//            }
+//        });
+//    }
 
     private void updateDateOfBirthLabel() {
         String myFormat = "dd/MM/yyyy";
