@@ -14,7 +14,12 @@
             android:id="@+id/profile_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:background="@drawable/circle_background" />
+            android:src="@drawable/ic_profile"
+            android:background="@drawable/circle_background"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp" />
+
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -73,12 +78,25 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_edit"
-        android:text="Edit"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp" />
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_edit"
+            android:text="Edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp" />
+
+        <Button
+            android:id="@+id/btn_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logout"
+            android:layout_marginStart="10dp" />
+
+    </LinearLayout>
 
     <View
         android:id="@+id/separator"
@@ -88,11 +106,13 @@
         android:layout_below="@id/app_name"
         android:layout_marginTop="8dp" />
 
-    <Button
-        android:id="@+id/btn_logout"
-        android:text="@string/logout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/posts_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="70dp"
+        android:clipToPadding="false"
+        android:paddingTop="16dp" />
 
 </LinearLayout>

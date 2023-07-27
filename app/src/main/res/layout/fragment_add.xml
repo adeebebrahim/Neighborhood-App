@@ -1,14 +1,73 @@
-<!-- fragment_home.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- fragment_add.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:padding="16dp">
 
-    <TextView
+    <!-- Linear Layout for Buttons -->
+    <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Cancel Button -->
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="25dp"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:layout_weight="1" />
+
+        <!-- Post Button -->
+        <Button
+            android:id="@+id/btn_post"
+            android:layout_width="25dp"
+            android:layout_height="wrap_content"
+            android:text="Post"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <!-- User's Profile Photo -->
+    <ImageView
+        android:id="@+id/profile_picture"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/buttons_layout"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/circle_background"
+        android:src="@drawable/ic_profile" />
+
+    <!-- Text Input -->
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/profile_picture"
+        android:layout_marginTop="8dp"
+        android:hint="What's on your mind?"
+        android:inputType="textMultiLine"
+        android:maxLines="4"
+        android:padding="8dp" />
+
+    <!-- Add Image Icon -->
+    <ImageView
+        android:id="@+id/add_image_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Fragment"
-        android:textSize="24sp" />
+        android:layout_below="@id/edit_text"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_addimage"
+        android:layout_alignParentEnd="true"
+        android:padding="8dp" />
 
-</LinearLayout>
+    <Button
+        android:id="@+id/post_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/add_image_icon"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Post" />
+
+</RelativeLayout>

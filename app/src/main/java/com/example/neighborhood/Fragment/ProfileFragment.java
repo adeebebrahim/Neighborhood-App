@@ -1,16 +1,26 @@
 package com.example.neighborhood.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.neighborhood.Login;
+import com.example.neighborhood.Post;
+import com.example.neighborhood.Adapter.PostAdapter;
 import com.example.neighborhood.R;
+import com.example.neighborhood.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -18,6 +28,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
@@ -26,6 +42,13 @@ public class ProfileFragment extends Fragment {
     private TextView bioTextView;
     private TextView followersTextView;
     private TextView followingTextView;
+    private ImageView profileImageView;
+    private Button btnlogout;
+    private Button btnedit;
+    private RecyclerView postRecyclerView;
+    private PostAdapter postAdapter;
+    private List<Post> postList;
+    private FirebaseUser currentUser;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -41,32 +64,82 @@ public class ProfileFragment extends Fragment {
         bioTextView = rootView.findViewById(R.id.bio_text);
         followersTextView = rootView.findViewById(R.id.followers_text);
         followingTextView = rootView.findViewById(R.id.following_text);
+        btnlogout = rootView.findViewById(R.id.btn_logout);
+        btnedit = rootView.findViewById(R.id.btn_edit);
+        profileImageView = rootView.findViewById(R.id.profile_image);
 
-        // Get the logged-in user's ID
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        // Assuming this code is inside your Fragment class
+
+        btnlogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Perform logout action using FirebaseAuth
+                FirebaseAuth.getInstance().signOut();
+
+                // Start the Login activity
+                Intent intent = new Intent(getActivity(), Login.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+
+                // Finish the current activity (optional, if needed)
+                getActivity().finish();
+            }
+        });
+
+        btnedit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Replace the current fragment with the EditProfileFragment
+                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, new EditProfileFragment());
+                transaction.addToBackStack(null); // This line allows the user to navigate back to HomeFragment
+                transaction.commit();
+            }
+        });
+
+        // Initialize RecyclerView and PostAdapter
+        postRecyclerView = rootView.findViewById(R.id.posts_recycler_view);
+        postRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        postList = new ArrayList<>();
+        postAdapter = new PostAdapter(postList);
+        postRecyclerView.setAdapter(postAdapter);
+
+        // Get the logged-in user
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
 
             // Get a reference to the "users" node in the Firebase database
-            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
+            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
 
             // Read the user's data from the database
             usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     // Retrieve user information
-                    String name = dataSnapshot.child("name").getValue(String.class);
-                    String username = dataSnapshot.child("username").getValue(String.class);
-                    String bio = dataSnapshot.child("bio").getValue(String.class);
-                    long followersCount = dataSnapshot.child("followerCount").getValue(Long.class);
-                    long followingCount = dataSnapshot.child("followingCount").getValue(Long.class);
+                    User user = dataSnapshot.getValue(User.class);
+                    if (user != null) {
+                        // Update the TextView elements with the retrieved user information
+                        nameTextView.setText(user.getName());
+                        usernameTextView.setText("@" + user.getUsername());
+                        bioTextView.setText(user.getBio());
+                        followersTextView.setText("Followers: " + user.getFollowerCount());
+                        followingTextView.setText("Following: " + user.getFollowingCount());
 
-                    // Update the TextView elements with the retrieved user information
-                    nameTextView.setText(name);
-                    usernameTextView.setText("@" + username);
-                    bioTextView.setText(bio);
-                    followersTextView.setText("Followers: " + followersCount);
-                    followingTextView.setText("Following: " + followingCount);
+                        // Load the profile image using Picasso
+                        if (user.getImage() != null && !user.getImage().isEmpty()) {
+                            Picasso.get()
+                                    .load(user.getImage())
+                                    .error(R.drawable.ic_profile) // Set the default image on error
+                                    .into(profileImageView);
+                        } else {
+                            // If profile image URL is empty, load a default image
+                            Picasso.get().load(R.drawable.ic_profile).into(profileImageView);
+                        }
+
+                        // Load the user's posts
+                        loadUserPosts();
+                    }
                 }
 
                 @Override
@@ -77,5 +150,40 @@ public class ProfileFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    private void loadUserPosts() {
+        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts");
+        postsRef.orderByChild("userId").equalTo(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Clear the existing post list before adding new posts
+                postList.clear();
+
+                // Loop through the dataSnapshot to get all user posts and add them to the postList
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Post post = postSnapshot.getValue(Post.class);
+                    if (post != null) {
+                        postList.add(post);
+                    }
+                }
+
+                // Sort the posts by timestamp (newest first)
+                Collections.sort(postList, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post post1, Post post2) {
+                        return Long.compare(post2.getTimestamp(), post1.getTimestamp());
+                    }
+                });
+
+                // Notify the adapter that the data has changed
+                postAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle any errors that occur while fetching data
+            }
+        });
     }
 }
