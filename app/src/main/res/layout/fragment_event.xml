@@ -1,14 +1,39 @@
-<!-- fragment_home.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- fragment_event.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Event Fragment"
-        android:textSize="24sp" />
+        android:orientation="horizontal"
+        android:background="@color/grey"
+        android:padding="1dp">
 
-</LinearLayout>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Events"
+            android:textSize="24sp"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/add_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_add"/>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/event_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_bar"
+        android:padding="16dp" />
+
+</RelativeLayout>
