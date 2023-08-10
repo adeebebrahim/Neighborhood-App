@@ -59,12 +59,13 @@
         android:layout_marginBottom="8dp" />
 
     <!-- Save Button -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Save Changes"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp" />
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
 
 </LinearLayout>

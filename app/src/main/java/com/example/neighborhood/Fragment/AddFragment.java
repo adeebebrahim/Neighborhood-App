@@ -23,11 +23,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -35,6 +39,7 @@ public class AddFragment extends Fragment {
 
     private EditText editText;
     private ImageView addImageIcon;
+    private ImageView profileImageView;
     private Button btnCancel, btnPost;
 
     private Uri imageUri;
@@ -49,9 +54,9 @@ public class AddFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add, container, false);
 
-        // Find views within the fragment
         editText = rootView.findViewById(R.id.edit_text);
         addImageIcon = rootView.findViewById(R.id.add_image_icon);
+        profileImageView = rootView.findViewById(R.id.profile_picture);
         btnCancel = rootView.findViewById(R.id.btn_cancel);
         btnPost = rootView.findViewById(R.id.btn_post);
 
@@ -62,7 +67,6 @@ public class AddFragment extends Fragment {
             currentUserId = currentUser.getUid();
         }
 
-        // Set click listener for the cancel button
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,7 +76,6 @@ public class AddFragment extends Fragment {
             }
         });
 
-        // Set click listener for the post button
         btnPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,7 +101,6 @@ public class AddFragment extends Fragment {
             }
         });
 
-        // Set click listener for the addImageIcon to select an image from the gallery
         addImageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,7 +108,36 @@ public class AddFragment extends Fragment {
             }
         });
 
+        loadUserProfileImage();
+
         return rootView;
+    }
+
+    private void loadUserProfileImage() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String currentUserId = currentUser.getUid();
+
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
+            userRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        User user = dataSnapshot.getValue(User.class);
+                        if (user != null && user.getImage() != null && !user.getImage().isEmpty()) {
+                            Picasso.get().load(user.getImage()).into(profileImageView);
+                        } else {
+                            Picasso.get().load(R.drawable.ic_profile).into(profileImageView);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Handle errors
+                }
+            });
+        }
     }
 
     private void openGallery() {

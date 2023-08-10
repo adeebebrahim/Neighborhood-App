@@ -47,11 +47,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_login"
-        android:text="@string/login"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="Edit"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
 
     <TextView
         android:id="@+id/registerNow"

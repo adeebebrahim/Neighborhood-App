@@ -2,6 +2,7 @@ package com.example.neighborhood.Fragment;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
@@ -18,12 +20,17 @@ import androidx.fragment.app.Fragment;
 
 import com.example.neighborhood.Event;
 import com.example.neighborhood.R;
+import com.example.neighborhood.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,6 +39,7 @@ import java.util.Locale;
 public class AddEventFragment extends Fragment {
 
     private EditText eventTitleEditText, eventDateEditText, eventTimeEditText, eventDescriptionEditText;
+    private ImageView profileImageView;
     private DatabaseReference eventsRef;
 
     private final Calendar calendar = Calendar.getInstance();
@@ -39,6 +47,7 @@ public class AddEventFragment extends Fragment {
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     private String userId;
+    private String userProfileImageUrl;
 
     public AddEventFragment() {
         // Required empty constructor
@@ -59,6 +68,7 @@ public class AddEventFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             userId = currentUser.getUid();
+            loadUserProfileImage();
         }
 
         eventTitleEditText = view.findViewById(R.id.event_title_edit_text);
@@ -66,6 +76,7 @@ public class AddEventFragment extends Fragment {
         eventTimeEditText = view.findViewById(R.id.event_time_edit_text);
         eventDescriptionEditText = view.findViewById(R.id.event_description_edit_text);
         Button postButton = view.findViewById(R.id.post_button);
+        profileImageView = view.findViewById(R.id.profile_picture);
 
         eventDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +96,28 @@ public class AddEventFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 postEvent();
+            }
+        });
+    }
+
+    private void loadUserProfileImage() {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    User user = dataSnapshot.getValue(User.class);
+                    if (user != null && user.getImage() != null && !user.getImage().isEmpty()) {
+                        Picasso.get().load(user.getImage()).into(profileImageView);
+                    } else {
+                        Picasso.get().load(R.drawable.ic_profile).into(profileImageView);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle errors
             }
         });
     }

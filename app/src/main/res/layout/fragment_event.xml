@@ -1,4 +1,3 @@
-<!-- fragment_event.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,24 +8,30 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@color/grey"
-        android:padding="1dp">
+        android:padding="15dp">
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Events"
-            android:textSize="24sp"
-            android:paddingStart="8dp"
-            android:paddingTop="8dp"
-            android:textColor="@color/white"/>
+            android:text="Event"
+            android:textStyle="bold"
+            android:textSize="24dp"
+            android:layout_alignParentStart="true"/>
+
+        <!-- Add a spacer to push the "Add" button to the right -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
         <Button
             android:id="@+id/add_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_add"/>
-
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/ic_add"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_vertical"
+            android:paddingEnd="10dp"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -34,6 +39,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/top_bar"
-        android:padding="16dp" />
+        android:layout_marginBottom="70dp"/>
 
 </RelativeLayout>

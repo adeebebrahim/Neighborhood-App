@@ -1,52 +1,52 @@
-<!-- fragment_home.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Neighborhood"
-        android:textSize="24dp"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp" />
-
-    <ImageView
-        android:id="@+id/search_icon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/ic_search"
-        android:layout_alignParentEnd="true"
-        android:layout_toStartOf="@id/message_icon"
-        android:layout_marginEnd="56dp"
-        android:layout_marginTop="8dp" />
-
-    <ImageView
-        android:id="@+id/message_icon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/ic_message"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp" />
-
-    <View
-        android:id="@+id/separator"
+    <LinearLayout
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#CCCCCC"
-        android:layout_below="@id/app_name"
-        android:layout_marginTop="8dp" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="15dp"
+        android:background="@color/grey">
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Neighborhood"
+            android:textStyle="bold"
+            android:textSize="24dp"
+            android:layout_alignParentStart="true"/>
+
+        <!-- Add a spacer to push the image views to the right -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/search_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_search"
+            android:layout_gravity="center_vertical"/>
+
+        <ImageView
+            android:id="@+id/message_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_message"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
 
     <!-- RecyclerView to display the posts -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/post_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/separator"
+        android:layout_below="@id/top_bar"
         android:layout_marginTop="0dp"
-        android:layout_marginBottom="70dp" />
+        android:layout_marginBottom="70dp"/>
 
 </RelativeLayout>

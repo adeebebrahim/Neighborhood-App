@@ -1,44 +1,88 @@
-<!-- fragment_add_event.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Linear Layout for Buttons -->
+    <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Cancel Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:layout_weight="1"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/post_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Post"
+            android:layout_weight="1"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+    </LinearLayout>
+
+    <!-- User's Profile Photo -->
+    <ImageView
+        android:id="@+id/profile_picture"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/circle_background"
+        android:src="@drawable/ic_profile"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="16dp"
+        android:layout_below="@id/buttons_layout"/>
+
+    <!-- Event Title -->
     <EditText
         android:id="@+id/event_title_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Event Title" />
+        android:layout_marginBottom="8dp"
+        android:hint="Event Title"
+        android:padding="8dp"
+        android:layout_below="@id/profile_picture"/>
 
+    <!-- Event Date -->
     <EditText
         android:id="@+id/event_date_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:hint="Event Date"
         android:focusable="false"
-        android:clickable="true" />
+        android:clickable="true"
+        android:padding="8dp"
+        android:layout_below="@id/event_title_edit_text"/>
 
+    <!-- Event Time -->
     <EditText
         android:id="@+id/event_time_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:hint="Event Time"
         android:focusable="false"
-        android:clickable="true" />
+        android:clickable="true"
+        android:padding="8dp"
+        android:layout_below="@id/event_date_edit_text"/>
 
+    <!-- Event Description -->
     <EditText
         android:id="@+id/event_description_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Event Description" />
+        android:layout_marginBottom="8dp"
+        android:hint="Event Description"
+        android:inputType="textMultiLine"
+        android:maxLines="4"
+        android:padding="8dp"
+        android:layout_below="@id/event_time_edit_text"/>
 
-    <Button
-        android:id="@+id/post_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Post Event"
-        android:layout_gravity="end"
-        android:layout_marginTop="16dp" />
-
-</LinearLayout>
+</RelativeLayout>
