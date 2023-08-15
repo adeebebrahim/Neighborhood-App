@@ -1,9 +1,9 @@
-<!-- item_community_post.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,6 +19,7 @@
             android:scaleType="centerCrop"
             android:layout_marginEnd="16dp"/>
 
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,52 +29,27 @@
                 android:id="@+id/name_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15dp" />
+                android:textSize="14dp" />
 
             <TextView
                 android:id="@+id/username_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15dp"
+                android:textSize="14dp"
                 android:textColor="#888888" />
+
+            <TextView
+                android:id="@+id/comment_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:textColor="#000000" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/title_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16dp"
-        android:textStyle="bold"
-        android:layout_marginTop="8dp" />
-
-    <TextView
-        android:id="@+id/description_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16dp"
-        android:layout_marginTop="4dp" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/comment_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Comment"
-            android:textSize="14sp"
-            android:paddingHorizontal="8dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
-
-    </LinearLayout>
-
     <View
-        android:id="@+id/separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#CCCCCC"

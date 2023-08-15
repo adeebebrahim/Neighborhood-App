@@ -63,6 +63,14 @@
 
             </LinearLayout>
 
+            <!-- Post Topic -->
+            <TextView
+                android:id="@+id/topic_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="16sp" />
+
             <!-- Post Content -->
             <TextView
                 android:id="@+id/post_text_view"
@@ -70,16 +78,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textSize="16sp" />
-
-            <!-- Post Image -->
-            <ImageView
-                android:id="@+id/post_image_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:scaleType="centerCrop"
-                android:adjustViewBounds="true"
-                android:visibility="gone"/>
 
             <!-- Post Timestamp -->
             <TextView
@@ -96,16 +94,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/like_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Like"
-                    android:textSize="14sp"
-                    android:paddingHorizontal="8dp"
-                    android:layout_marginEnd="8dp"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/comment_button"

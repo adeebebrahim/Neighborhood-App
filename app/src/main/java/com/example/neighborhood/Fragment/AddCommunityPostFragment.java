@@ -104,8 +104,15 @@ public class AddCommunityPostFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
-            CommunityPost newPost = new CommunityPost(userId, topic, description);
-            communityPostsRef.push().setValue(newPost);
+
+            // Generate a unique topicId
+            String topicId = communityPostsRef.push().getKey();
+
+            // Get the current timestamp
+            long timestamp = System.currentTimeMillis();
+
+            CommunityPost newPost = new CommunityPost(userId, topic, description, topicId, timestamp);
+            communityPostsRef.child(topicId).setValue(newPost);
 
             // Clear input fields after posting
             topicEditText.getText().clear();

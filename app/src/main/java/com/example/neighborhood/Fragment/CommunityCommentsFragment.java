@@ -71,7 +71,7 @@ public class CommunityCommentsFragment extends Fragment {
         // Retrieve post data from arguments
         Bundle arguments = getArguments();
         if (arguments != null) {
-            communityPost = arguments.getParcelable("communityPost");
+            communityPost = arguments.getParcelable("post");
             if (communityPost != null) {
                 // Retrieve user data and populate views
                 retrieveUserFromDatabase(communityPost.getUserId());
@@ -95,8 +95,8 @@ public class CommunityCommentsFragment extends Fragment {
         submitCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String commentText = commentEditText.getText().toString().trim();
-                if (!commentText.isEmpty()) {
+                String text = commentEditText.getText().toString().trim();
+                if (!text.isEmpty()) {
                     // Generate a unique commentId
                     String commentId = FirebaseDatabase.getInstance().getReference().push().getKey();
 
@@ -104,17 +104,17 @@ public class CommunityCommentsFragment extends Fragment {
                     String userId = getCurrentUserId();
 
                     // Get the postId from the retrieved post
-                    String postId = communityPost.getTopicId();
+                    String topicId = communityPost.getTopicId();
 
                     // Get the current timestamp
                     long timestamp = System.currentTimeMillis();
 
                     // Create a new Comment object
-                    CommunityComment newComment = new CommunityComment(userId, postId, commentId, timestamp, commentText);
+                    CommunityComment newComment = new CommunityComment(userId, topicId, commentId, timestamp, text);
 
                     // Save the comment to the database
                     DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("CommunityComments");
-                    commentsRef.child(postId).child(commentId).setValue(newComment)
+                    commentsRef.child(topicId).child(commentId).setValue(newComment)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {

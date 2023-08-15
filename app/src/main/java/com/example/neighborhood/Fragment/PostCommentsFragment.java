@@ -131,6 +131,15 @@ public class PostCommentsFragment extends Fragment {
             }
         });
 
+        ImageView backButton = view.findViewById(R.id.btn_back);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Navigate back to the previous fragment
+                getParentFragmentManager().popBackStack();
+            }
+        });
+
         return view;
     }
 
