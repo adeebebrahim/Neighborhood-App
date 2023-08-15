@@ -4,7 +4,6 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -27,10 +26,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     private List<Post> postList;
     private DatabaseReference usersRef; // Reference to the "Users" node in Firebase
+    private UserProfileClickListener userProfileClickListener;
 
-    public PostAdapter(List<Post> postList) {
+    public PostAdapter(List<Post> postList, UserProfileClickListener listener) {
         this.postList = postList;
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        this.userProfileClickListener = listener;
     }
 
     @NonNull
@@ -81,16 +82,30 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
             holder.postImageView.setVisibility(View.VISIBLE);
             // Load the post image using Picasso or any other image loading library
-            // For simplicity, I'm using a placeholder image here.
-            // Replace "R.drawable.placeholder_image" with the placeholder image resource.
-            // Picasso.get().load(post.getImageUrl()).placeholder(R.drawable.placeholder_image).into(holder.postImageView);
-            holder.postImageView.setImageResource(R.drawable.ic_addimage);
+            Picasso.get().load(post.getImageUrl()).placeholder(R.drawable.ic_addimage).into(holder.postImageView);
         } else {
             holder.postImageView.setVisibility(View.GONE);
         }
 
-        // Handle like and comment button clicks here if needed.
-        // You can set click listeners for the buttons in this method.
+        // Set click listeners
+        holder.profileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userProfileClickListener.onItemClick(userId);
+            }
+        });
+        holder.nameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userProfileClickListener.onItemClick(userId);
+            }
+        });
+        holder.usernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userProfileClickListener.onItemClick(userId);
+            }
+        });
     }
 
     @Override
@@ -103,6 +118,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         notifyDataSetChanged();
     }
 
+    public interface UserProfileClickListener {
+        void onItemClick(String userId);
+    }
+
     public static class PostViewHolder extends RecyclerView.ViewHolder {
         ImageView profileImageView;
         TextView nameTextView;
@@ -110,8 +129,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView postTextView;
         TextView timestampTextView;
         ImageView postImageView;
-        Button likeButton;
-        Button commentButton;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -121,8 +138,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             postTextView = itemView.findViewById(R.id.post_text_view);
             timestampTextView = itemView.findViewById(R.id.timestamp_text_view);
             postImageView = itemView.findViewById(R.id.post_image_view);
-            likeButton = itemView.findViewById(R.id.like_button);
-            commentButton = itemView.findViewById(R.id.comment_button);
         }
     }
 }

@@ -30,6 +30,7 @@ public class AddCommunityPostFragment extends Fragment {
     private ImageView profileImageView;
     private DatabaseReference communityPostsRef;
     private DatabaseReference usersRef;
+    private Button btnCancel;
 
     public AddCommunityPostFragment() {
         // Required empty public constructor
@@ -51,6 +52,7 @@ public class AddCommunityPostFragment extends Fragment {
         topicEditText = view.findViewById(R.id.topic_edit_text);
         descriptionEditText = view.findViewById(R.id.description_edit_text);
         Button postButton = view.findViewById(R.id.post_button);
+        btnCancel = view.findViewById(R.id.btn_cancel);
 
         loadUserProfileImage();
 
@@ -58,6 +60,13 @@ public class AddCommunityPostFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 postCommunityPost();
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getParentFragmentManager().popBackStack();
             }
         });
     }

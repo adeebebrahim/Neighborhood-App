@@ -40,6 +40,7 @@ public class AddEventFragment extends Fragment {
 
     private EditText eventTitleEditText, eventDateEditText, eventTimeEditText, eventDescriptionEditText;
     private ImageView profileImageView;
+    private Button btnCancel;
     private DatabaseReference eventsRef;
 
     private final Calendar calendar = Calendar.getInstance();
@@ -77,6 +78,7 @@ public class AddEventFragment extends Fragment {
         eventDescriptionEditText = view.findViewById(R.id.event_description_edit_text);
         Button postButton = view.findViewById(R.id.post_button);
         profileImageView = view.findViewById(R.id.profile_picture);
+        btnCancel = view.findViewById(R.id.btn_cancel);
 
         eventDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +98,13 @@ public class AddEventFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 postEvent();
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getParentFragmentManager().popBackStack();
             }
         });
     }

@@ -35,7 +35,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements PostAdapter.UserProfileClickListener {
 
     private TextView nameTextView;
     private TextView usernameTextView;
@@ -68,32 +68,18 @@ public class ProfileFragment extends Fragment {
         btnedit = rootView.findViewById(R.id.btn_edit);
         profileImageView = rootView.findViewById(R.id.profile_image);
 
-        // Assuming this code is inside your Fragment class
-
+        // Set click listeners for the logout and edit buttons
         btnlogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Perform logout action using FirebaseAuth
-                FirebaseAuth.getInstance().signOut();
-
-                // Start the Login activity
-                Intent intent = new Intent(getActivity(), Login.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-
-                // Finish the current activity (optional, if needed)
-                getActivity().finish();
+                logoutUser();
             }
         });
 
         btnedit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Replace the current fragment with the EditProfileFragment
-                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, new EditProfileFragment());
-                transaction.addToBackStack(null); // This line allows the user to navigate back to HomeFragment
-                transaction.commit();
+                navigateToEditProfile();
             }
         });
 
@@ -101,7 +87,7 @@ public class ProfileFragment extends Fragment {
         postRecyclerView = rootView.findViewById(R.id.posts_recycler_view);
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         postList = new ArrayList<>();
-        postAdapter = new PostAdapter(postList);
+        postAdapter = new PostAdapter(postList, this);
         postRecyclerView.setAdapter(postAdapter);
 
         // Get the logged-in user
@@ -185,5 +171,30 @@ public class ProfileFragment extends Fragment {
                 // Handle any errors that occur while fetching data
             }
         });
+    }
+
+    private void logoutUser() {
+        FirebaseAuth.getInstance().signOut();
+
+        // Start the Login activity
+        Intent intent = new Intent(getActivity(), Login.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        // Finish the current activity (optional, if needed)
+        getActivity().finish();
+    }
+
+    private void navigateToEditProfile() {
+        // Replace the current fragment with the EditProfileFragment
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, new EditProfileFragment());
+        transaction.addToBackStack(null); // This line allows the user to navigate back to HomeFragment
+        transaction.commit();
+    }
+
+    @Override
+    public void onItemClick(String userId) {
+        // Handle user profile item click if needed
     }
 }
