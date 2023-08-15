@@ -1,5 +1,6 @@
 package com.example.neighborhood.Adapter;
 
+import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +9,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.neighborhood.Fragment.PostCommentsFragment;
 import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
@@ -19,17 +22,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+import com.google.android.material.button.MaterialButton; // Import MaterialButton
 
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
     private List<Post> postList;
-    private DatabaseReference usersRef; // Reference to the "Users" node in Firebase
+    private DatabaseReference usersRef;
+    private AppCompatActivity context;
     private UserProfileClickListener userProfileClickListener;
 
-    public PostAdapter(List<Post> postList, UserProfileClickListener listener) {
+    public PostAdapter(List<Post> postList, AppCompatActivity context, UserProfileClickListener listener) {
         this.postList = postList;
+        this.context = context;
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
         this.userProfileClickListener = listener;
     }
@@ -44,19 +50,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = postList.get(position);
-
-        // Fetch the user information from Firebase based on userId
         String userId = post.getUserId();
+
+        // Fetch user information
         usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    // Set user profile picture, name, and username
+                    // Set user profile data
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
                         Picasso.get().load(user.getImage()).placeholder(R.drawable.ic_profile).into(holder.profileImageView);
                     } else {
-                        // If the profile image URL is empty or null, load a default image or show an error image
                         Picasso.get().load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                     holder.nameTextView.setText(user.getName());
@@ -66,28 +71,35 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle errors if any
+                // Handle errors
             }
         });
 
-        // Set post text
+        // Set post data
         holder.postTextView.setText(post.getPostText());
 
-        // Set the timestamp
+        // Set timestamp
         CharSequence timestampFormatted = DateUtils.getRelativeTimeSpanString(post.getTimestamp(),
                 System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
         holder.timestampTextView.setText(timestampFormatted);
 
-        // Check if the post has an image and show/hide the ImageView accordingly
+        // Set post image
         if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
             holder.postImageView.setVisibility(View.VISIBLE);
-            // Load the post image using Picasso or any other image loading library
             Picasso.get().load(post.getImageUrl()).placeholder(R.drawable.ic_addimage).into(holder.postImageView);
         } else {
             holder.postImageView.setVisibility(View.GONE);
         }
 
         // Set click listeners
+        holder.commentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToPostCommentsFragment(post);
+            }
+        });
+
+        // Set other click listeners
         holder.profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,6 +141,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView postTextView;
         TextView timestampTextView;
         ImageView postImageView;
+        MaterialButton commentButton; // Use MaterialButton for comment button
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -138,6 +151,24 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             postTextView = itemView.findViewById(R.id.post_text_view);
             timestampTextView = itemView.findViewById(R.id.timestamp_text_view);
             postImageView = itemView.findViewById(R.id.post_image_view);
+            commentButton = itemView.findViewById(R.id.comment_button); // Initialize comment button as MaterialButton
         }
+    }
+
+    private void navigateToPostCommentsFragment(Post post) {
+        // Create a bundle to pass the selected post to the fragment
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("post", post); // Use "post" key instead of "selected_post"
+
+        // Create the fragment instance
+        PostCommentsFragment commentsFragment = new PostCommentsFragment();
+        commentsFragment.setArguments(bundle);
+
+        // Navigate to the fragment
+        context.getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, commentsFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

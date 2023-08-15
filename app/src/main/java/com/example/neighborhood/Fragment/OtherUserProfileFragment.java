@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -69,7 +70,7 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
         // Initialize RecyclerView and PostAdapter
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         postList = new ArrayList<>();
-        postAdapter = new PostAdapter(postList, this);
+        postAdapter = new PostAdapter(postList, (AppCompatActivity) getActivity(), this);
         postRecyclerView.setAdapter(postAdapter);
 
         // Load other user's posts

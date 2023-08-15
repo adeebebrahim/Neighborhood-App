@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -87,7 +88,7 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
         postRecyclerView = rootView.findViewById(R.id.posts_recycler_view);
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         postList = new ArrayList<>();
-        postAdapter = new PostAdapter(postList, this);
+        postAdapter = new PostAdapter(postList, (AppCompatActivity) getActivity(), this);
         postRecyclerView.setAdapter(postAdapter);
 
         // Get the logged-in user
