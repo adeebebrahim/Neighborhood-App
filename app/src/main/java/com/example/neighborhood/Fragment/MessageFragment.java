@@ -26,7 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageFragment extends Fragment {
+public class MessageFragment extends Fragment implements MessageUserAdapter.OnUserItemClickListener {
 
     private RecyclerView recyclerView;
     private MessageUserAdapter messageUserAdapter;
@@ -75,6 +75,8 @@ public class MessageFragment extends Fragment {
             }
         });
 
+        messageUserAdapter.setOnUserItemClickListener(this);
+
         ImageView backButton = view.findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,5 +91,21 @@ public class MessageFragment extends Fragment {
     private String getCurrentUserId() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         return currentUser != null ? currentUser.getUid() : null;
+    }
+
+    @Override
+    public void onUserItemClick(User user) {
+        // Handle user item click
+        String recipientUserId = user.getUserId();
+
+        NewMessageFragment newMessageFragment = new NewMessageFragment();
+        Bundle args = new Bundle();
+        args.putString("recipientUserId", recipientUserId);
+        newMessageFragment.setArguments(args);
+
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, newMessageFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
