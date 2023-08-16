@@ -17,6 +17,9 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Login;
 import com.example.neighborhood.Post;
 import com.example.neighborhood.Adapter.PostAdapter;
@@ -115,13 +118,15 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
 
                         // Load the profile image using Picasso
                         if (user.getImage() != null && !user.getImage().isEmpty()) {
-                            Picasso.get()
+                            RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+                            Glide.with(requireContext()) // Use requireContext() instead of getActivity()
                                     .load(user.getImage())
+                                    .apply(requestOptions)
                                     .error(R.drawable.ic_profile) // Set the default image on error
                                     .into(profileImageView);
                         } else {
                             // If profile image URL is empty, load a default image
-                            Picasso.get().load(R.drawable.ic_profile).into(profileImageView);
+                            Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                         }
 
                         // Load the user's posts

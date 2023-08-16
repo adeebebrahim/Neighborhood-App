@@ -16,6 +16,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
 import com.google.android.gms.tasks.Continuation;
@@ -125,9 +128,14 @@ public class AddFragment extends Fragment {
                     if (dataSnapshot.exists()) {
                         User user = dataSnapshot.getValue(User.class);
                         if (user != null && user.getImage() != null && !user.getImage().isEmpty()) {
-                            Picasso.get().load(user.getImage()).into(profileImageView);
+                            RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+                            Glide.with(requireContext())
+                                    .load(user.getImage())
+                                    .apply(requestOptions)
+                                    .placeholder(R.drawable.ic_profile)
+                                    .into(profileImageView);
                         } else {
-                            Picasso.get().load(R.drawable.ic_profile).into(profileImageView);
+                            Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                         }
                     }
                 }
@@ -139,6 +147,7 @@ public class AddFragment extends Fragment {
             });
         }
     }
+
 
     private void openGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK);

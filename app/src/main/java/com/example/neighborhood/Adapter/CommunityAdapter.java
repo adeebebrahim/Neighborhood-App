@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.CommunityPost;
 import com.example.neighborhood.Fragment.CommunityCommentsFragment;
 import com.example.neighborhood.Fragment.PostCommentsFragment;
@@ -61,9 +64,14 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
                 if (user != null) {
                     // Set user profile picture
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
-                        Picasso.get().load(user.getImage()).placeholder(R.drawable.ic_profile).into(holder.profileImageView);
+                        RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+                        Glide.with(holder.itemView.getContext())
+                                .load(user.getImage())
+                                .apply(requestOptions)
+                                .placeholder(R.drawable.ic_profile)
+                                .into(holder.profileImageView);
                     } else {
-                        Picasso.get().load(R.drawable.ic_profile).into(holder.profileImageView);
+                        Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                     // Set user name and username
                     holder.nameTextView.setText(user.getName());

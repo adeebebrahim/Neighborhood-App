@@ -10,6 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Event;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
@@ -52,9 +55,14 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                 if (user != null) {
                     // Set user profile picture
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
-                        Picasso.get().load(user.getImage()).placeholder(R.drawable.ic_profile).into(holder.profileImageView);
+                        RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+                        Glide.with(holder.itemView.getContext())
+                                .load(user.getImage())
+                                .apply(requestOptions)
+                                .placeholder(R.drawable.ic_profile)
+                                .into(holder.profileImageView);
                     } else {
-                        Picasso.get().load(R.drawable.ic_profile).into(holder.profileImageView);
+                        Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                     // Set user name and username
                     holder.nameTextView.setText(user.getName());

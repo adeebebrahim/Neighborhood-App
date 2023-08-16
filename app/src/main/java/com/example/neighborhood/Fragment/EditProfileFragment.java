@@ -21,6 +21,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -103,9 +105,20 @@ public class EditProfileFragment extends Fragment {
                         editTextEmail.setText(email);
                         editTextMobileno.setText(mobileNo);
 
-                        Glide.with(requireContext())
-                                .load(profileImage)
-                                .into(profileImageView);
+//                        Glide.with(requireContext())
+//                                .load(profileImage)
+//                                .into(profileImageView);
+
+                        // Load the profile image using Glide and apply circular cropping
+                        if (profileImage != null && !profileImage.isEmpty()) {
+                            RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+                            Glide.with(requireContext())
+                                    .load(profileImage)
+                                    .apply(requestOptions)
+                                    .into(profileImageView);
+                        } else {
+                            Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
+                        }
                     }
                 }
 
@@ -205,8 +218,11 @@ public class EditProfileFragment extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
+                                                        // Load the updated profile picture with circular cropping
+                                                        RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                                                         Glide.with(requireContext())
                                                                 .load(downloadUri)
+                                                                .apply(requestOptions)
                                                                 .into(profileImageView);
 
                                                         Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show();
@@ -237,6 +253,7 @@ public class EditProfileFragment extends Fragment {
             Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void updateProfile() {
         String name = editTextName.getText().toString().trim();
