@@ -8,6 +8,7 @@
         android:id="@+id/profile_image_view"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:background="@drawable/circle_background"
         android:src="@drawable/ic_profile" />
 
     <LinearLayout
@@ -18,22 +19,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/name_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/username_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/last_message_text_view"
+            android:id="@+id/message_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""

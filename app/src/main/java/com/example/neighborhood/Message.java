@@ -1,35 +1,41 @@
 package com.example.neighborhood;
 
 public class Message {
-    private String userId;
-    private String profileImage;
-    private String name;
-    private String username;
+    private String messageText;
+    private String senderUserId;
+    private String recipientUserId;
 
+    // Default constructor for Firebase
     public Message() {
-        // Default constructor required for Firebase
     }
 
-    public Message(String userId, String profileImage, String name, String username) {
-        this.userId = userId;
-        this.profileImage = profileImage;
-        this.name = name;
-        this.username = username;
+    public Message(String messageText, String senderUserId, String recipientUserId) {
+        this.messageText = messageText;
+        this.senderUserId = senderUserId;
+        this.recipientUserId = recipientUserId;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getMessageText() {
+        return messageText;
     }
 
-    public String getProfileImage() {
-        return profileImage;
+    public void setMessageText(String messageText) {
+        this.messageText = messageText;
     }
 
-    public String getName() {
-        return name;
+    public String getSenderUserId() {
+        return senderUserId;
     }
 
-    public String getUsername() {
-        return username;
+    public void setSenderUserId(String senderUserId) {
+        this.senderUserId = senderUserId;
+    }
+
+    public String getRecipientUserId() {
+        return recipientUserId;
+    }
+
+    public void setRecipientUserId(String recipientUserId) {
+        this.recipientUserId = recipientUserId;
     }
 }
