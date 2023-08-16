@@ -1,14 +1,19 @@
 package com.example.neighborhood.Adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.User;
 import com.example.neighborhood.R;
 
@@ -17,12 +22,15 @@ import java.util.List;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
     private List<User> userList;
-    private OnFollowButtonClickListener followButtonClickListener;
+    private Context context;
+    private UserProfileClickListener userProfileClickListener;
 
-    public UserAdapter(List<User> userList, OnFollowButtonClickListener followButtonClickListener) {
+    public UserAdapter(Context context, List<User> userList, UserProfileClickListener userProfileClickListener) {
+        this.context = context;
         this.userList = userList;
-        this.followButtonClickListener = followButtonClickListener;
+        this.userProfileClickListener = userProfileClickListener;
     }
+
 
     @NonNull
     @Override
@@ -37,20 +45,28 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.nameTextView.setText(user.getName());
         holder.usernameTextView.setText(user.getUsername());
 
-        // Set the follow button text and click listener
-        if (user.isFollowStatus()) {
-            holder.followButton.setText("Following");
+        ImageView profileImageView = holder.itemView.findViewById(R.id.profile_picture);
+        if (user.getImage() != null && !user.getImage().isEmpty()) {
+            RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+            Glide.with(context) // Use the context provided in the adapter constructor
+                    .load(user.getImage())
+                    .apply(requestOptions)
+                    .error(R.drawable.ic_profile) // Set the default image on error
+                    .into(profileImageView);
         } else {
-            holder.followButton.setText("Follow");
+            // If profile image URL is empty, load a default image
+            Glide.with(context).load(R.drawable.ic_profile).into(profileImageView);
         }
 
-        holder.followButton.setOnClickListener(v -> {
-            // Call the click listener to handle the follow button click
-            if (followButtonClickListener != null) {
-                boolean newFollowStatus = !user.isFollowStatus();
-                followButtonClickListener.onFollowButtonClick(position, newFollowStatus);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (userProfileClickListener != null) {
+                    userProfileClickListener.onItemClick(user.getUserId());
+                }
             }
         });
+
     }
 
     @Override
@@ -66,17 +82,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public static class UserViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
         TextView usernameTextView;
-        Button followButton;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.user_name);
             usernameTextView = itemView.findViewById(R.id.user_username);
-            followButton = itemView.findViewById(R.id.follow_button);
         }
     }
 
-    public interface OnFollowButtonClickListener {
-        void onFollowButtonClick(int position, boolean newFollowStatus);
+    public interface UserProfileClickListener {
+        void onItemClick(String userId);
     }
 }

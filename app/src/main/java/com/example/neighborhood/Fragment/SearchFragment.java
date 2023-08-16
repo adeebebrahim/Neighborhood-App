@@ -12,6 +12,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,7 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchFragment extends Fragment implements UserAdapter.OnFollowButtonClickListener {
+public class SearchFragment extends Fragment implements UserAdapter.UserProfileClickListener {
 
     private EditText searchBar;
     private RecyclerView userRecyclerView;
@@ -53,8 +54,8 @@ public class SearchFragment extends Fragment implements UserAdapter.OnFollowButt
         userRecyclerView = rootView.findViewById(R.id.user_list);
         userRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         allUsers = new ArrayList<>();
-        filteredUsers = new ArrayList<>();
-        userAdapter = new UserAdapter(filteredUsers, this);
+        filteredUsers = new ArrayList<>(); // Clear the filteredUsers list initially
+        userAdapter = new UserAdapter(requireContext(), filteredUsers, this);
         userRecyclerView.setAdapter(userAdapter);
 
         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
@@ -66,7 +67,6 @@ public class SearchFragment extends Fragment implements UserAdapter.OnFollowButt
                     User user = userSnapshot.getValue(User.class);
                     allUsers.add(user);
                 }
-                userAdapter.setUserList(allUsers);
             }
 
             @Override
@@ -139,50 +139,19 @@ public class SearchFragment extends Fragment implements UserAdapter.OnFollowButt
     }
 
     @Override
-    public void onFollowButtonClick(int position, boolean newFollowStatus) {
-        User user = filteredUsers.get(position);
-//        updateFollowStatus(user.getUsername(), newFollowStatus, user);
+    public void onItemClick(String userId) {
+        navigateToOtherUserProfile(userId);
     }
 
-//    private void updateFollowStatus(String username, boolean newFollowStatus, User targetUser) {
-//        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-//        if (currentUser != null) {
-//            String currentUserUid = currentUser.getUid();
-//            DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserUid);
-//            currentUserRef.child("following").child(username).setValue(newFollowStatus);
-//
-//            DatabaseReference targetUserRef = FirebaseDatabase.getInstance().getReference("users").child(targetUser.getUserId());
-//            targetUserRef.child("followers").child(currentUserUid).setValue(newFollowStatus);
-//
-//            // Update follower count for the target user
-//            targetUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    long followerCount = snapshot.child("followers").getChildrenCount();
-//                    targetUser.setFollowerCount((int) followerCount);
-//                    targetUserRef.child("followerCount").setValue((int) followerCount);
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//                    // Handle the error if needed
-//                }
-//            });
-//
-//            // Update following count for the current user
-//            currentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    long followingCount = snapshot.child("following").getChildrenCount();
-//                    currentUser.setFollowingCount((int) followingCount);
-//                    currentUserRef.child("followingCount").setValue((int) followingCount);
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//                    // Handle the error if needed
-//                }
-//            });
-//        }
-//    }
+    private void navigateToOtherUserProfile(String userId) {
+        OtherUserProfileFragment fragment = new OtherUserProfileFragment();
+        Bundle args = new Bundle();
+        args.putString("userId", userId);
+        fragment.setArguments(args);
+
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null); // Allow navigating back
+        transaction.commit();
+    }
 }

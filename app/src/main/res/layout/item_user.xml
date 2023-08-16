@@ -25,8 +25,7 @@
             android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:paddingEnd="100dp"/>
+            android:textSize="16sp"/>
 
         <TextView
             android:id="@+id/user_username"
@@ -37,16 +36,15 @@
 
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/follow_button"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="10dp"
-        android:text="Follow"
-        android:textSize="12sp" />
-
-
 </LinearLayout>
+
+<!--<com.google.android.material.button.MaterialButton-->
+<!--android:id="@+id/follow_button"-->
+<!--style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
+<!--android:layout_width="wrap_content"-->
+<!--android:layout_height="wrap_content"-->
+<!--android:layout_gravity="end"-->
+<!--android:layout_marginTop="8dp"-->
+<!--android:layout_marginEnd="10dp"-->
+<!--android:text="Follow"-->
+<!--android:textSize="12sp" />-->
