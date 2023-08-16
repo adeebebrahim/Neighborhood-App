@@ -8,6 +8,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Comment;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
@@ -52,10 +56,16 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                     holder.usernameTextView.setText("@" + user.getUsername());
 
                     if (!TextUtils.isEmpty(user.getImage())) {
-                        Picasso.get().load(user.getImage()).placeholder(R.drawable.ic_profile).into(holder.profileImageView);
+                        // Load the user profile image with circular cropping
+                        RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+                        Glide.with(holder.itemView.getContext())
+                                .load(user.getImage())
+                                .apply(requestOptions)
+                                .placeholder(R.drawable.ic_profile)
+                                .into(holder.profileImageView);
                     } else {
-                        // Set a default placeholder image if the image URL is empty
-                        Picasso.get().load(R.drawable.ic_profile).into(holder.profileImageView);
+                        // Load default profile image if the image URL is empty
+                        Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                 }
             }

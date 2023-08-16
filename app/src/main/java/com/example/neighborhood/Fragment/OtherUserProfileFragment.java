@@ -15,6 +15,9 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Adapter.PostAdapter;
 import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
@@ -103,15 +106,17 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
                     followersTextView.setText("Followers: " + otherUser.getFollowerCount());
                     followingTextView.setText("Following: " + otherUser.getFollowingCount());
 
-                    // Load the other user's profile image using Picasso
+                    // Load the other user's profile image using Glide and apply circular cropping
                     if (otherUser.getImage() != null && !otherUser.getImage().isEmpty()) {
-                        Picasso.get()
+                        RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+                        Glide.with(requireContext())
                                 .load(otherUser.getImage())
+                                .apply(requestOptions)
                                 .error(R.drawable.ic_profile) // Set the default image on error
                                 .into(profileImageView);
                     } else {
                         // If profile image URL is empty, load a default image
-                        Picasso.get().load(R.drawable.ic_profile).into(profileImageView);
+                        Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                     }
                 }
             }

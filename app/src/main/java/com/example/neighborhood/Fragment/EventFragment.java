@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class EventFragment extends Fragment {
@@ -39,19 +40,22 @@ public class EventFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_event, container, false);
 
+        // Get a reference to the "Events" node in the Firebase Realtime Database
         eventsRef = FirebaseDatabase.getInstance().getReference().child("Events");
 
         // Initialize RecyclerView and Adapter
         eventRecyclerView = rootView.findViewById(R.id.event_recycler_view);
         eventRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        eventAdapter = new EventAdapter(new ArrayList<>()); // Initialize with an empty list
+        eventAdapter = new EventAdapter(new ArrayList<>(), requireContext());
         eventRecyclerView.setAdapter(eventAdapter);
 
         // Load events from Firebase and populate the adapter
         loadEventsFromFirebase();
 
+        // Initialize and set up the "Add" button
         addButton = rootView.findViewById(R.id.add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +73,8 @@ public class EventFragment extends Fragment {
 
     // Method to load events from Firebase and populate the adapter
     private void loadEventsFromFirebase() {
-        eventsRef.addValueEventListener(new ValueEventListener() {
+        // Order events by timestamp in descending order (newest first)
+        eventsRef.orderByChild("timestamp").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<Event> eventList = new ArrayList<>();
@@ -81,6 +86,9 @@ public class EventFragment extends Fragment {
                         eventList.add(event);
                     }
                 }
+
+                // Reverse the list to get the newest events first
+                Collections.reverse(eventList);
 
                 // Set the eventList to the adapter
                 eventAdapter.setEventList(eventList);

@@ -1,22 +1,36 @@
 package com.example.neighborhood;
 
 public class Event {
+    private String eventId; // Unique identifier for the event
     private String title;
     private String date;
     private String time;
     private String description;
     private String userId; // User ID who posted the event
+    private long timestamp; // Timestamp of when the event was created
 
+    // Default constructor required for Firebase
     public Event() {
-        // Default constructor required for Firebase
     }
 
-    public Event(String title, String date, String time, String description, String userId) {
+    // Constructor with all fields
+    public Event(String eventId, String title, String date, String time, String description, String userId, long timestamp) {
+        this.eventId = eventId;
         this.title = title;
         this.date = date;
         this.time = time;
         this.description = description;
         this.userId = userId;
+        this.timestamp = timestamp;
+    }
+
+    // Getter and Setter methods for each field
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 
     public String getTitle() {
@@ -57,5 +71,13 @@ public class Event {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

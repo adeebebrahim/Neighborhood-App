@@ -2,7 +2,6 @@ package com.example.neighborhood.Fragment;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -59,6 +58,7 @@ public class AddEventFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add_event, container, false);
     }
 
@@ -66,6 +66,7 @@ public class AddEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Get a reference to the "Events" node in the Firebase Realtime Database
         eventsRef = FirebaseDatabase.getInstance().getReference().child("Events");
 
         // Retrieve the current user's ID
@@ -75,6 +76,7 @@ public class AddEventFragment extends Fragment {
             loadUserProfileImage();
         }
 
+        // Initialize UI components
         eventTitleEditText = view.findViewById(R.id.event_title_edit_text);
         eventDateEditText = view.findViewById(R.id.event_date_edit_text);
         eventTimeEditText = view.findViewById(R.id.event_time_edit_text);
@@ -83,6 +85,7 @@ public class AddEventFragment extends Fragment {
         profileImageView = view.findViewById(R.id.profile_picture);
         btnCancel = view.findViewById(R.id.btn_cancel);
 
+        // Set up event listeners for date and time pickers
         eventDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,6 +100,7 @@ public class AddEventFragment extends Fragment {
             }
         });
 
+        // Set up click listeners for "Post" and "Cancel" buttons
         postButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,13 +117,16 @@ public class AddEventFragment extends Fragment {
     }
 
     private void loadUserProfileImage() {
+        // Get a reference to the user's profile image in the Firebase Realtime Database
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+                    // Retrieve user data from the snapshot
                     User user = dataSnapshot.getValue(User.class);
                     if (user != null && user.getImage() != null && !user.getImage().isEmpty()) {
+                        // Load the user's profile image using Glide library
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(requireContext())
                                 .load(user.getImage())
@@ -127,6 +134,7 @@ public class AddEventFragment extends Fragment {
                                 .placeholder(R.drawable.ic_profile)
                                 .into(profileImageView);
                     } else {
+                        // Load default profile image if user has no image
                         Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                     }
                 }
@@ -140,6 +148,7 @@ public class AddEventFragment extends Fragment {
     }
 
     private void showDatePicker() {
+        // Create and show a DatePickerDialog to pick a date
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 requireContext(),
                 new DatePickerDialog.OnDateSetListener() {
@@ -159,6 +168,7 @@ public class AddEventFragment extends Fragment {
     }
 
     private void showTimePicker() {
+        // Create and show a TimePickerDialog to pick a time
         TimePickerDialog timePickerDialog = new TimePickerDialog(
                 requireContext(),
                 new TimePickerDialog.OnTimeSetListener() {
@@ -176,34 +186,34 @@ public class AddEventFragment extends Fragment {
         timePickerDialog.show();
     }
 
-    private String getCurrentUserId() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            return currentUser.getUid();
-        }
-        return null;
-    }
-
     private void postEvent() {
+        // Get event details from UI components
         String eventTitle = eventTitleEditText.getText().toString();
         String eventDate = eventDateEditText.getText().toString();
         String eventTime = eventTimeEditText.getText().toString();
         String eventDescription = eventDescriptionEditText.getText().toString();
 
+        // Check if all fields are filled
         if (!eventTitle.isEmpty() && !eventDate.isEmpty() && !eventTime.isEmpty() && !eventDescription.isEmpty()) {
-            Event newEvent = new Event(eventTitle, eventDate, eventTime, eventDescription, userId);
+            // Generate a unique event ID and get current timestamp
+            String eventId = eventsRef.push().getKey();
+            long timestamp = System.currentTimeMillis();
 
-            eventsRef.push().setValue(newEvent)
+            // Create a new Event object
+            Event newEvent = new Event(eventId, eventTitle, eventDate, eventTime, eventDescription, userId, timestamp);
+
+            // Add the event to the Firebase Realtime Database
+            eventsRef.child(eventId).setValue(newEvent)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            // Clear input fields after successful posting
+                            // Clear input fields
                             eventTitleEditText.getText().clear();
                             eventDateEditText.getText().clear();
                             eventTimeEditText.getText().clear();
                             eventDescriptionEditText.getText().clear();
 
-                            // Navigate back to EventFragment after successful posting
+                            // Navigate back to the EventFragment
                             getParentFragmentManager().popBackStack();
 
                             // Log successful event posting

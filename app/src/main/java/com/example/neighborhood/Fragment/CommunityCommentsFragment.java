@@ -15,6 +15,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Adapter.CommunityCommentAdapter;
 import com.example.neighborhood.Comment;
 import com.example.neighborhood.CommunityComment;
@@ -152,9 +155,14 @@ public class CommunityCommentsFragment extends Fragment {
                 if (user != null) {
                     // Set user data to the views
                     if (!TextUtils.isEmpty(user.getImage())) {
-                        Picasso.get().load(user.getImage()).placeholder(R.drawable.ic_profile).into(profileImageView);
+                        RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
+                        Glide.with(requireContext())
+                                .load(user.getImage())
+                                .apply(requestOptions)
+                                .placeholder(R.drawable.ic_profile)
+                                .into(profileImageView);
                     } else {
-                        Picasso.get().load(R.drawable.ic_profile).into(profileImageView);
+                        Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                     }
                     nameTextView.setText(user.getName());
                     usernameTextView.setText("@" + user.getUsername());

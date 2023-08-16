@@ -1,9 +1,12 @@
 package com.example.neighborhood.Adapter;
 
-import android.text.format.DateUtils;
+import android.content.Context;
+import android.content.Intent;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,24 +24,32 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
     private List<Event> eventList;
-    private DatabaseReference usersRef; // Reference to the "Users" node in Firebase
+    private DatabaseReference usersRef;
+    private Context context;
 
-    public EventAdapter(List<Event> eventList) {
+    public EventAdapter(List<Event> eventList, Context context) {
         this.eventList = eventList;
+        this.context = context;
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
     }
 
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_event, parent, false);
+        // Inflate the item layout
+        context = parent.getContext();
+        View view = LayoutInflater.from(context).inflate(R.layout.item_event, parent, false);
         return new EventViewHolder(view);
     }
 
@@ -46,14 +57,14 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = eventList.get(position);
 
-        // Fetch the user information from Firebase based on userId
+        // Fetch user information from Firebase based on userId
         String userId = event.getUserId();
         usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    // Set user profile picture
+                    // Load user profile picture using Glide
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(holder.itemView.getContext())
@@ -83,6 +94,14 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         holder.descriptionTextView.setText(event.getDescription());
 
         // Handle other event-related data if needed
+
+        // Handle "Add to Reminder" button click
+        holder.addToReminderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addToCalendar(event);
+            }
+        });
     }
 
     @Override
@@ -103,16 +122,51 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         TextView dateTextView;
         TextView timeTextView;
         TextView descriptionTextView;
+        Button addToReminderButton;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             profileImageView = itemView.findViewById(R.id.profile_image_view);
-            nameTextView = itemView.findViewById(R.id.name_text_view); // Assuming you have these TextViews in your item_event layout
-            usernameTextView = itemView.findViewById(R.id.username_text_view); // Assuming you have these TextViews in your item_event layout
+            nameTextView = itemView.findViewById(R.id.name_text_view);
+            usernameTextView = itemView.findViewById(R.id.username_text_view);
             titleTextView = itemView.findViewById(R.id.title_text_view);
             dateTextView = itemView.findViewById(R.id.date_text_view);
             timeTextView = itemView.findViewById(R.id.time_text_view);
             descriptionTextView = itemView.findViewById(R.id.description_text_view);
+            addToReminderButton = itemView.findViewById(R.id.add_to_reminder_button);
         }
     }
+
+    // Inside the addToCalendar() method of the EventAdapter class
+
+    private void addToCalendar(Event event) {
+        // Get event details
+        String eventTitle = event.getTitle();
+        String eventDate = event.getDate();
+        String eventTime = event.getTime();
+
+        // Parse eventDate and eventTime to obtain the event's start time in milliseconds
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
+        try {
+            Date startDateTime = dateFormat.parse(eventDate + " " + eventTime);
+            if (startDateTime != null) {
+                calendar.setTime(startDateTime);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        long startTimeInMillis = calendar.getTimeInMillis();
+
+        // Create an intent to add the event to the user's calendar
+        Intent calendarIntent = new Intent(Intent.ACTION_INSERT)
+                .setData(CalendarContract.Events.CONTENT_URI)
+                .putExtra(CalendarContract.Events.TITLE, eventTitle)
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startTimeInMillis);
+
+        // Start the calendar activity
+        context.startActivity(calendarIntent);
+    }
+
+
 }
