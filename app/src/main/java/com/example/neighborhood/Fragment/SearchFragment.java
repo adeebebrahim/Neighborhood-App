@@ -140,7 +140,21 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
 
     @Override
     public void onItemClick(String userId) {
-        navigateToOtherUserProfile(userId);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null && currentUser.getUid().equals(userId)) {
+            navigateToProfileFragment();
+        } else {
+            navigateToOtherUserProfile(userId);
+        }
+    }
+
+    private void navigateToProfileFragment() {
+        // Navigate to the user's own profile fragment
+        ProfileFragment profileFragment = new ProfileFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, profileFragment);
+        transaction.addToBackStack(null); // Allow navigating back
+        transaction.commit();
     }
 
     private void navigateToOtherUserProfile(String userId) {
