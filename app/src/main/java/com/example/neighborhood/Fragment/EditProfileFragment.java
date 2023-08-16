@@ -1,12 +1,10 @@
 package com.example.neighborhood.Fragment;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.ContentValues;
+import static android.app.Activity.RESULT_OK;
+
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,16 +17,16 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.neighborhood.R;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -40,16 +38,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 public class EditProfileFragment extends Fragment {
-
-    private static final int PICK_IMAGE_REQUEST = 1;
-    private static final int CAMERA_REQUEST_CODE = 100;
-    private static final int STORAGE_REQUEST_CODE = 200;
-    private static final int IMAGE_PICK_GALLERY_REQUEST_CODE = 300;
-    private static final int IMAGE_PICK_CAMERA_REQUEST_CODE = 400;
 
     private EditText editTextName;
     private EditText editTextUsername;
@@ -65,11 +56,11 @@ public class EditProfileFragment extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageReference;
 
-    private Uri imageUri;
+    private static final int REQUEST_CAMERA = 1;
+    private static final int REQUEST_GALLERY = 2;
 
-    //arrays of permissions to be requested
-    String[] cameraPermissions;
-    String[] storagePermissions;
+    private Uri selectedImageUri;
+    private ProgressDialog progressDialog;
 
     public EditProfileFragment() {
         // Required empty public constructor
@@ -85,10 +76,6 @@ public class EditProfileFragment extends Fragment {
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
-        //init arrays of permissions
-        cameraPermissions = new String[]{android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        storagePermissions = new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
         editTextName = rootView.findViewById(R.id.editTextName);
         editTextUsername = rootView.findViewById(R.id.editTextUsername);
         editTextBio = rootView.findViewById(R.id.editTextBio);
@@ -97,7 +84,6 @@ public class EditProfileFragment extends Fragment {
         btnSave = rootView.findViewById(R.id.btnSave);
         profileImageView = rootView.findViewById(R.id.profileImageView);
 
-        // Fetch the user data from Firebase and populate the EditText fields
         if (currentUser != null) {
             String userId = currentUser.getUid();
             databaseUsers.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -117,7 +103,6 @@ public class EditProfileFragment extends Fragment {
                         editTextEmail.setText(email);
                         editTextMobileno.setText(mobileNo);
 
-                        // Load the profile image using Glide
                         Glide.with(requireContext())
                                 .load(profileImage)
                                 .into(profileImageView);
@@ -141,22 +126,125 @@ public class EditProfileFragment extends Fragment {
         profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showImagePicDialog();
+                showImageSelectionDialog();
             }
         });
 
         return rootView;
     }
 
+    private void showImageSelectionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Choose an option");
+        builder.setItems(new CharSequence[]{"Camera", "Gallery"}, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    openCamera();
+                } else if (which == 1) {
+                    openGallery();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void openCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, REQUEST_CAMERA);
+    }
+
+    private void openGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(galleryIntent, REQUEST_GALLERY);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CAMERA) {
+                selectedImageUri = data.getData();
+                updateProfilePicture();
+            } else if (requestCode == REQUEST_GALLERY) {
+                selectedImageUri = data.getData();
+                updateProfilePicture();
+            }
+        }
+    }
+
+    private void updateProfilePicture() {
+        if (selectedImageUri != null) {
+            progressDialog = new ProgressDialog(requireContext());
+            progressDialog.setTitle("Uploading profile picture...");
+            progressDialog.show();
+
+            StorageReference storageRef = storage.getReference();
+            StorageReference profileImageRef = storageRef.child("profile_pictures").child(currentUser.getUid() + ".jpg");
+
+            profileImageRef.putFile(selectedImageUri)
+                    .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                        @Override
+                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                            if (!task.isSuccessful()) {
+                                throw task.getException();
+                            }
+                            return profileImageRef.getDownloadUrl();
+                        }
+                    })
+                    .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Uri> task) {
+                            if (task.isSuccessful()) {
+                                Uri downloadUri = task.getResult();
+                                if (downloadUri != null) {
+                                    DatabaseReference userRef = databaseUsers.child(currentUser.getUid());
+                                    userRef.child("image").setValue(downloadUri.toString())
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Glide.with(requireContext())
+                                                                .load(downloadUri)
+                                                                .into(profileImageView);
+
+                                                        Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        Toast.makeText(requireContext(), "Failed to update profile picture", Toast.LENGTH_SHORT).show();
+                                                    }
+
+                                                    if (progressDialog.isShowing()) {
+                                                        progressDialog.dismiss();
+                                                    }
+                                                }
+                                            });
+                                } else {
+                                    Toast.makeText(requireContext(), "Failed to get download URL", Toast.LENGTH_SHORT).show();
+                                    if (progressDialog.isShowing()) {
+                                        progressDialog.dismiss();
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to upload profile picture", Toast.LENGTH_SHORT).show();
+                                if (progressDialog.isShowing()) {
+                                    progressDialog.dismiss();
+                                }
+                            }
+                        }
+                    });
+        } else {
+            Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void updateProfile() {
-        // Get the updated values from the EditText fields
         String name = editTextName.getText().toString().trim();
         String username = editTextUsername.getText().toString().trim();
         String bio = editTextBio.getText().toString().trim();
         String email = editTextEmail.getText().toString().trim();
         String mobile = editTextMobileno.getText().toString().trim();
 
-        // Update the user data in the Firebase Realtime Database
         if (currentUser != null) {
             String userId = currentUser.getUid();
             HashMap<String, Object> updates = new HashMap<>();
@@ -177,146 +265,6 @@ public class EditProfileFragment extends Fragment {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-    }
-
-    private void showImagePicDialog() {
-        // Show dialog containing options Camera and Gallery to pick the image
-        String options[] = {"Camera", "Gallery"};
-
-        // Create the AlertDialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Pick Image From");
-        builder.setItems(options, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Handle dialog item clicks
-                if (which == 0) {
-                    // Camera clicked
-                    if (!checkCameraPermission()) {
-                        requestCameraPermission();
-                    } else {
-                        pickFromCamera();
-                    }
-                } else if (which == 1) {
-                    // Gallery clicked
-                    if (!checkStoragePermission()) {
-                        requestStoragePermission();
-                    } else {
-                        pickFromGallery();
-                    }
-                }
-            }
-        });
-
-        // Show the dialog
-        builder.create().show();
-    }
-
-    private boolean checkCameraPermission() {
-        // Check if camera permission is granted or not
-        int cameraPermission = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA);
-        int storagePermission = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        return cameraPermission == PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestCameraPermission() {
-        // Request camera permission
-        ActivityCompat.requestPermissions(getActivity(), cameraPermissions, CAMERA_REQUEST_CODE);
-    }
-
-    private boolean checkStoragePermission() {
-        // Check if storage permission is granted or not
-        int storagePermission = ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        return storagePermission == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestStoragePermission() {
-        // Request storage permission
-        ActivityCompat.requestPermissions(getActivity(), storagePermissions, STORAGE_REQUEST_CODE);
-    }
-
-    private void pickFromCamera() {
-        // Pick image from camera
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.TITLE, "Temp Pick");
-        values.put(MediaStore.Images.Media.DESCRIPTION, "Temp Descr");
-        imageUri = requireContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-        startActivityForResult(cameraIntent, IMAGE_PICK_CAMERA_REQUEST_CODE);
-    }
-
-    private void pickFromGallery() {
-        // Pick image from gallery
-        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(galleryIntent, IMAGE_PICK_GALLERY_REQUEST_CODE);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMAGE_PICK_GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            try {
-                uploadImage();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else if (requestCode == IMAGE_PICK_CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            try {
-                uploadImage();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void uploadImage() throws IOException {
-        if (imageUri != null) {
-            StorageReference imageRef = storageReference.child("profile_images").child(currentUser.getUid() + ".jpg");
-            imageRef.putFile(imageUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    String imageUrl = uri.toString();
-                                    // Update the user's profile image URL in the Firebase Realtime Database
-                                    if (currentUser != null) {
-                                        String userId = currentUser.getUid();
-                                        HashMap<String, Object> updates = new HashMap<>();
-                                        updates.put("image", imageUrl);
-
-                                        databaseUsers.child(userId).updateChildren(updates)
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Glide.with(requireContext())
-                                                                .load(imageUrl)
-                                                                .into(profileImageView);
-                                                        Toast.makeText(requireContext(), "Profile picture updated successfully", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Toast.makeText(requireContext(), "Failed to update profile picture", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                    }
-                                }
-                            });
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            // Handle image upload failure
                         }
                     });
         }
