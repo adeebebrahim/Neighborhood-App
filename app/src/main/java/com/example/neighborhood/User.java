@@ -3,7 +3,7 @@ package com.example.neighborhood;
 import java.util.Map;
 
 public class User {
-    public String userId;
+    private String userId;
     private String name;
     private String email;
     private String mobileNo;

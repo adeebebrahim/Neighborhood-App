@@ -47,6 +47,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 if (dataSnapshot.exists()) {
                     User user = dataSnapshot.getValue(User.class);
                     if (user != null) {
+                        // Load profile image, name, and username
                         if (user.getImage() != null) {
                             Picasso.get().load(user.getImage()).into(holder.profileImageView);
                         } else {

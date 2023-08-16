@@ -245,6 +245,7 @@ public class Register extends AppCompatActivity {
                                 String userId = user.getUid();
                                 // Create a HashMap to store user information
                                 HashMap<String, Object> userInfo = new HashMap<>();
+                                userInfo.put("userId", userId); // Add the userId
                                 userInfo.put("name", name);
                                 userInfo.put("username", username);
                                 userInfo.put("email", email);
@@ -274,6 +275,7 @@ public class Register extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void updateDateOfBirthLabel() {
         String myFormat = "dd/MM/yyyy";

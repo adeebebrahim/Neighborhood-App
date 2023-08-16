@@ -84,6 +84,14 @@ public class PostCommentsFragment extends Fragment {
                 // Populate other post-related views
                 postTextView.setText(post.getPostText());
 
+                // Set post image (new code snippet)
+                if (!TextUtils.isEmpty(post.getImageUrl())) {
+                    postImageView.setVisibility(View.VISIBLE);
+                    Picasso.get().load(post.getImageUrl()).placeholder(R.drawable.ic_addimage).into(postImageView);
+                } else {
+                    postImageView.setVisibility(View.GONE);
+                }
+
                 // Set up RecyclerView for comments
                 commentList = new ArrayList<>();
                 commentAdapter = new CommentAdapter(commentList);

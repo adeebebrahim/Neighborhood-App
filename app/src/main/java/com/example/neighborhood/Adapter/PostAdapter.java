@@ -70,7 +70,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                                 .placeholder(R.drawable.ic_profile)
                                 .into(holder.profileImageView);
                     } else {
-                        Glide.with(context).load(R.drawable.ic_profile).into(holder.profileImageView);
+                        Glide.with(context)
+                                .load(R.drawable.ic_profile)
+                                .into(holder.profileImageView);
                     }
                     holder.nameTextView.setText(user.getName());
                     holder.usernameTextView.setText("@" + user.getUsername());
