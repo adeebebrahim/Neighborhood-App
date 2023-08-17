@@ -140,6 +140,31 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             }
         });
 
+        if (post.getLikedByUsers().contains(currentUser.getUid())) {
+            holder.likeButton.setText("Liked");
+        } else {
+            holder.likeButton.setText("Like");
+        }
+        holder.likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Check if the user has already liked the post
+                if (post.getLikedByUsers().contains(currentUser.getUid())) {
+                    // Remove user's like
+                    post.getLikedByUsers().remove(currentUser.getUid());
+                    holder.likeButton.setText("Like");
+                } else {
+                    // Add user's like
+                    post.getLikedByUsers().add(currentUser.getUid());
+                    holder.likeButton.setText("Liked");
+                }
+
+                // Update the post's likedByUsers field in the database
+                DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts").child(post.getPostId());
+                postsRef.child("likedByUsers").setValue(post.getLikedByUsers());
+            }
+        });
+
         // Set click listeners
         holder.commentButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,6 +216,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView timestampTextView;
         ImageView postImageView;
         MaterialButton commentButton; // Use MaterialButton for comment button
+        MaterialButton likeButton;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -201,6 +227,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             timestampTextView = itemView.findViewById(R.id.timestamp_text_view);
             postImageView = itemView.findViewById(R.id.post_image_view);
             commentButton = itemView.findViewById(R.id.comment_button); // Initialize comment button as MaterialButton
+            likeButton = itemView.findViewById(R.id.like_button);
         }
     }
 

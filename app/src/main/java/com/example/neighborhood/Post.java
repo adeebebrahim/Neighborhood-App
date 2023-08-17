@@ -3,6 +3,9 @@ package com.example.neighborhood;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Post implements Parcelable {
     private String userName;
     private String userUsername;
@@ -11,11 +14,11 @@ public class Post implements Parcelable {
     private String imageUrl;
     private long timestamp;
     private String userId;
-
-    // Constructors, getters, and setters
+    private List<String> likedByUsers; // List of user IDs who liked the post
 
     public Post() {
         // Empty constructor required for Firebase Realtime Database
+        likedByUsers = new ArrayList<>(); // Initialize the list
     }
 
     public Post(String userName, String userUsername, String postText, String postId, String imageUrl, long timestamp, String userId) {
@@ -83,6 +86,16 @@ public class Post implements Parcelable {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+
+    public List<String> getLikedByUsers() {
+        return likedByUsers;
+    }
+
+    public void setLikedByUsers(List<String> likedByUsers) {
+        this.likedByUsers = likedByUsers;
+    }
+
     // Parcelable constructor
     protected Post(Parcel in) {
         userName = in.readString();
@@ -92,6 +105,7 @@ public class Post implements Parcelable {
         imageUrl = in.readString();
         timestamp = in.readLong();
         userId = in.readString();
+        likedByUsers = in.createStringArrayList();
     }
 
     @Override
@@ -103,6 +117,7 @@ public class Post implements Parcelable {
         dest.writeString(imageUrl);
         dest.writeLong(timestamp);
         dest.writeString(userId);
+        dest.writeStringList(likedByUsers);
     }
 
     @Override
