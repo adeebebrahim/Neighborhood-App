@@ -1,5 +1,6 @@
 package com.example.neighborhood.Adapter;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -7,8 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,11 +19,18 @@ import com.example.neighborhood.Fragment.PostCommentsFragment;
 import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 import com.google.android.material.button.MaterialButton; // Import MaterialButton
 import com.bumptech.glide.Glide;
@@ -34,6 +44,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private List<Post> postList;
     private DatabaseReference usersRef;
     private AppCompatActivity context;
+    private FirebaseUser currentUser; // Add currentUser
     private UserProfileClickListener userProfileClickListener;
 
     public PostAdapter(List<Post> postList, AppCompatActivity context, UserProfileClickListener listener) {
@@ -54,6 +65,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = postList.get(position);
         String userId = post.getUserId();
+
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         // Fetch user information
         usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -100,6 +113,32 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         } else {
             holder.postImageView.setVisibility(View.GONE);
         }
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (userId.equals(currentUser.getUid())) {
+                    // Show a confirmation dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setMessage("Delete this post?");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Delete the post and associated data
+                            deletePost(post);
+                        }
+                    });
+                    builder.setNegativeButton("No", null);
+                    builder.show();
+
+                    return true; // Consume the click event
+                } else {
+                    // Display an error message
+
+                    return true; // Consume the click event
+                }
+            }
+        });
 
         // Set click listeners
         holder.commentButton.setOnClickListener(new View.OnClickListener() {
@@ -181,4 +220,40 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 .addToBackStack(null)
                 .commit();
     }
+
+    private void deletePost(Post post) {
+        // Delete post from the postList and update the RecyclerView
+        postList.remove(post);
+        notifyDataSetChanged();
+
+        // Delete post data from the Firebase Realtime Database
+        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts");
+        postsRef.child(post.getPostId()).removeValue();
+
+        // Delete post image from storage (if available)
+        if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
+            StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(post.getImageUrl());
+            storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    // Image deleted successfully
+                }
+            });
+        }
+
+        // Delete comments associated with the post from the Firebase Realtime Database
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
+        commentsRef.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // Comments associated with the post deleted successfully
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // Handle failure
+            }
+        });
+    }
+
 }
