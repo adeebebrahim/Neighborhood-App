@@ -1,6 +1,7 @@
 package com.example.neighborhood.Adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -19,6 +21,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Event;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -102,6 +106,31 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                 addToCalendar(event);
             }
         });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (event.getUserId().equals(getCurrentUserId())) {
+                    // Show a confirmation dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                    builder.setMessage("Delete this event?");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Delete the event post
+                            deleteEvent(event);
+                        }
+                    });
+                    builder.setNegativeButton("No", null);
+                    builder.show();
+
+                    return true; // Consume the click event
+                } else {
+                    // Display an error message or take other action
+                    return true; // Consume the click event
+                }
+            }
+        });
     }
 
     @Override
@@ -168,5 +197,19 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         context.startActivity(calendarIntent);
     }
 
+    private void deleteEvent(Event event) {
+        // Remove the event from the eventList and update the RecyclerView
+        eventList.remove(event);
+        notifyDataSetChanged();
+
+        // Delete the event data from the Firebase Realtime Database
+        DatabaseReference eventsRef = FirebaseDatabase.getInstance().getReference().child("Events").child(event.getEventId());
+        eventsRef.removeValue();
+    }
+
+    private String getCurrentUserId() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        return currentUser != null ? currentUser.getUid() : null;
+    }
 
 }

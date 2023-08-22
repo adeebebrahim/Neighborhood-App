@@ -1,5 +1,6 @@
 package com.example.neighborhood.Adapter;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +23,8 @@ import com.example.neighborhood.Fragment.CommunityCommentsFragment;
 import com.example.neighborhood.Fragment.PostCommentsFragment;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -88,6 +92,9 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         // Set post data such as title and description
         holder.titleTextView.setText(post.getTopic());
         holder.descriptionTextView.setText(post.getDescription());
+        CharSequence timestampFormatted = DateUtils.getRelativeTimeSpanString(post.getTimestamp(),
+                System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+        holder.timestampTextView.setText(timestampFormatted);
 
         // Set click listener for comment button
         holder.commentButton.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +117,47 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
             }
         });
 
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("CommunityComments").child(post.getTopicId());
+        commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Get the number of comments
+                int numComments = (int) dataSnapshot.getChildrenCount();
+                holder.commentTextView.setText("Comments " + numComments);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle errors
+            }
+        });
+
+        // Add a long click listener to the itemView
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (post.getUserId().equals(getCurrentUserId())) {
+                    // Show a confirmation dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                    builder.setMessage("Delete this post?");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Delete the post and related comments
+                            deleteCommunityPostAndComments(post);
+                        }
+                    });
+                    builder.setNegativeButton("No", null);
+                    builder.show();
+
+                    return true; // Consume the click event
+                } else {
+                    // Display an error message or take other action
+                    return true; // Consume the click event
+                }
+            }
+        });
+
     }
 
     @Override
@@ -128,7 +176,9 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         TextView usernameTextView;
         TextView titleTextView;
         TextView descriptionTextView;
+        TextView timestampTextView;
         MaterialButton commentButton;
+        TextView commentTextView;
 
         public CommunityViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -137,7 +187,9 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
             usernameTextView = itemView.findViewById(R.id.username_text_view); // Assuming you have these TextViews in your item_community_post layout
             titleTextView = itemView.findViewById(R.id.title_text_view);
             descriptionTextView = itemView.findViewById(R.id.description_text_view);
+            timestampTextView = itemView.findViewById(R.id.timestamp_text_view);
             commentButton = itemView.findViewById(R.id.comment_button); // Initialize comment button as MaterialButton
+            commentTextView = itemView.findViewById(R.id.comment_text_view);
         }
     }
 
@@ -157,4 +209,24 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
                 .addToBackStack(null)
                 .commit();
     }
+
+    private void deleteCommunityPostAndComments(CommunityPost post) {
+        // Remove the post from the communityPosts list and update the RecyclerView
+        communityPosts.remove(post);
+        notifyDataSetChanged();
+
+        // Delete the post data from the Firebase Realtime Database
+        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("CommunityPosts").child(post.getTopicId());
+        postsRef.removeValue();
+
+        // Delete related comments from the Firebase Realtime Database
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("CommunityComments").child(post.getTopicId());
+        commentsRef.removeValue();
+    }
+
+    private String getCurrentUserId() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        return currentUser != null ? currentUser.getUid() : null;
+    }
+
 }

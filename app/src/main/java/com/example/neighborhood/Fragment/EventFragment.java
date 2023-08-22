@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.neighborhood.Adapter.EventAdapter;
 import com.example.neighborhood.Event;
@@ -22,9 +23,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class EventFragment extends Fragment {
 
@@ -52,6 +57,17 @@ public class EventFragment extends Fragment {
         eventAdapter = new EventAdapter(new ArrayList<>(), requireContext());
         eventRecyclerView.setAdapter(eventAdapter);
 
+        // Initialize SwipeRefreshLayout
+        SwipeRefreshLayout swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh the events
+                loadEventsFromFirebase();
+                swipeRefreshLayout.setRefreshing(false); // Hide the refresh indicator
+            }
+        });
+
         // Load events from Firebase and populate the adapter
         loadEventsFromFirebase();
 
@@ -73,17 +89,30 @@ public class EventFragment extends Fragment {
 
     // Method to load events from Firebase and populate the adapter
     private void loadEventsFromFirebase() {
+        long currentTimeMillis = System.currentTimeMillis();
         // Order events by timestamp in descending order (newest first)
         eventsRef.orderByChild("timestamp").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<Event> eventList = new ArrayList<>();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
 
                 // Loop through the dataSnapshot to get all events and add them to the eventList
                 for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()) {
                     Event event = eventSnapshot.getValue(Event.class);
                     if (event != null) {
-                        eventList.add(event);
+                        try {
+                            Date eventDateTime = dateFormat.parse(event.getDate() + " " + event.getTime());
+                            // Check if the event's date and time are in the future
+                            if (eventDateTime != null && eventDateTime.getTime() >= currentTimeMillis) {
+                                eventList.add(event);
+                            } else {
+                                // Delete the event from the Firebase Realtime Database
+                                eventsRef.child(event.getEventId()).removeValue();
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 

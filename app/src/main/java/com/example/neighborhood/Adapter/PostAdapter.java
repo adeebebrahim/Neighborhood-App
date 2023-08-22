@@ -192,6 +192,25 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 userProfileClickListener.onItemClick(userId);
             }
         });
+
+        int numLikes = post.getLikedByUsers().size();
+        holder.likeTextView.setText("Likes " + numLikes);
+
+        // Query the database to count the number of comments
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
+        commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Get the number of comments
+                int numComments = (int) dataSnapshot.getChildrenCount();
+                holder.commentTextView.setText("Comments " + numComments);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle errors
+            }
+        });
     }
 
     @Override
@@ -217,6 +236,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         ImageView postImageView;
         MaterialButton commentButton; // Use MaterialButton for comment button
         MaterialButton likeButton;
+        TextView likeTextView;
+        TextView commentTextView;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -228,6 +249,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             postImageView = itemView.findViewById(R.id.post_image_view);
             commentButton = itemView.findViewById(R.id.comment_button); // Initialize comment button as MaterialButton
             likeButton = itemView.findViewById(R.id.like_button);
+            likeTextView = itemView.findViewById(R.id.like_text_view);
+            commentTextView = itemView.findViewById(R.id.comment_text_view);
         }
     }
 

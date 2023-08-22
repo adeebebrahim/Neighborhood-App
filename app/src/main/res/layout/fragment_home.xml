@@ -1,52 +1,59 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/top_bar"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="15dp"
-        android:background="@color/grey">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/app_name"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Neighborhood"
-            android:textStyle="bold"
-            android:textSize="24dp"
-            android:layout_alignParentStart="true"/>
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:background="@color/grey">
 
-        <!-- Add a spacer to push the image views to the right -->
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/app_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Neighborhood"
+                android:textStyle="bold"
+                android:textSize="24dp"
+                android:layout_alignParentStart="true"/>
 
-        <ImageView
-            android:id="@+id/search_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_search"
-            android:layout_gravity="center_vertical"/>
+            <!-- Add a spacer to push the image views to the right -->
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
 
-        <ImageView
-            android:id="@+id/message_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_message"
-            android:layout_gravity="center_vertical"/>
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/search_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_search"
+                android:layout_gravity="center_vertical"/>
 
-    <!-- RecyclerView to display the posts -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/post_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/top_bar"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="70dp"/>
+            <ImageView
+                android:id="@+id/message_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_message"
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
 
-</RelativeLayout>
+        <!-- RecyclerView to display the posts -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/post_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/top_bar"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="70dp"/>
+
+    </RelativeLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

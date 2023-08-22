@@ -1,5 +1,6 @@
 package com.example.neighborhood.Adapter;
 
+import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -15,6 +17,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Comment;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -75,6 +79,32 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                 // Handle database error
             }
         });
+
+        // Add a long click listener to the itemView
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (comment.getUserId().equals(getCurrentUserId())) {
+                    // Show a confirmation dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                    builder.setMessage("Delete this comment?");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Delete the comment
+                            deleteComment(comment);
+                        }
+                    });
+                    builder.setNegativeButton("No", null);
+                    builder.show();
+
+                    return true; // Consume the click event
+                } else {
+                    // Display an error message or take other action
+                    return true; // Consume the click event
+                }
+            }
+        });
     }
 
 
@@ -97,4 +127,20 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             profileImageView = itemView.findViewById(R.id.profile_image_view);
         }
     }
+
+    private void deleteComment(Comment comment) {
+        // Remove the comment from the commentList and update the RecyclerView
+        commentList.remove(comment);
+        notifyDataSetChanged();
+
+        // Delete comment data from the Firebase Realtime Database
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(comment.getPostId()).child(comment.getCommentId());
+        commentsRef.removeValue();
+    }
+
+    private String getCurrentUserId() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        return currentUser != null ? currentUser.getUid() : null;
+    }
+
 }

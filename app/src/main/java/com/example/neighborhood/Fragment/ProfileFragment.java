@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
@@ -53,6 +54,7 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
     private PostAdapter postAdapter;
     private List<Post> postList;
     private FirebaseUser currentUser;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -71,6 +73,17 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
         btnlogout = rootView.findViewById(R.id.btn_logout);
         btnedit = rootView.findViewById(R.id.btn_edit);
         profileImageView = rootView.findViewById(R.id.profile_image);
+        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
+
+        // Set up swipe-to-refresh action
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Handle the refresh action
+                // For example, call loadUserPosts() to reload the user's posts
+                loadUserPosts();
+            }
+        });
 
         // Set click listeners for the logout and edit buttons
         btnlogout.setOnClickListener(new View.OnClickListener() {
@@ -170,11 +183,13 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
 
                 // Notify the adapter that the data has changed
                 postAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 // Handle any errors that occur while fetching data
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

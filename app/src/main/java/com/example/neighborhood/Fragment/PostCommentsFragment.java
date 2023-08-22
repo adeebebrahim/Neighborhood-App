@@ -51,6 +51,8 @@ public class PostCommentsFragment extends Fragment {
     private RecyclerView commentsRecyclerView;
     private EditText commentEditText;
     private Button submitCommentButton;
+    private TextView likeTextView;
+    private TextView commentTextView;
 
     private List<Comment> commentList;
     private CommentAdapter commentAdapter;
@@ -72,6 +74,8 @@ public class PostCommentsFragment extends Fragment {
         commentsRecyclerView = view.findViewById(R.id.comments_recycler_view);
         commentEditText = view.findViewById(R.id.comment_edit_text);
         submitCommentButton = view.findViewById(R.id.submit_comment_button);
+        likeTextView = view.findViewById(R.id.like_text_view);
+        commentTextView = view.findViewById(R.id.comment_text_view);
 
         // Retrieve post data from arguments
         Bundle arguments = getArguments();
@@ -150,6 +154,55 @@ public class PostCommentsFragment extends Fragment {
                 getParentFragmentManager().popBackStack();
             }
         });
+
+        // Inside your onCreateView() or onViewCreated() method
+        if (post.getLikedByUsers().contains(getCurrentUserId())) {
+            likeButton.setText("Liked");
+        } else {
+            likeButton.setText("Like");
+        }
+
+        likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts").child(post.getPostId());
+
+                // Check if the user has already liked the post
+                if (post.getLikedByUsers().contains(getCurrentUserId())) {
+                    // Remove user's like
+                    post.getLikedByUsers().remove(getCurrentUserId());
+                    likeButton.setText("Like");
+                } else {
+                    // Add user's like
+                    post.getLikedByUsers().add(getCurrentUserId());
+                    likeButton.setText("Liked");
+                }
+
+                // Update the post's likedByUsers field in the database
+                postsRef.child("likedByUsers").setValue(post.getLikedByUsers());
+            }
+        });
+
+        // Inside your onCreateView() or onViewCreated() method
+        int numLikes = post.getLikedByUsers().size();
+        likeTextView.setText("Likes " + numLikes);
+
+        // Query the database to count the number of comments
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
+        commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Get the number of comments
+                int numComments = (int) dataSnapshot.getChildrenCount();
+                commentTextView.setText("Comments " + numComments);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle errors
+            }
+        });
+
 
         return view;
     }

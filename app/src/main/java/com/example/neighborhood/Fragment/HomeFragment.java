@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.neighborhood.Login;
 import com.example.neighborhood.Post;
@@ -40,6 +41,7 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
     private PostAdapter postAdapter;
     private List<Post> postList;
     private FirebaseUser currentUser;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -50,6 +52,7 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
         postRecyclerView = rootView.findViewById(R.id.post_list);
+        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout); // Initialize the SwipeRefreshLayout
 
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         postList = new ArrayList<>();
@@ -88,6 +91,16 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
             }
         });
 
+        // Set up swipe-to-refresh action
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Handle the refresh action
+                // For example, call fetchPostsFromFirebase() to reload the posts
+                fetchPostsFromFirebase();
+            }
+        });
+
         return rootView;
     }
 
@@ -114,11 +127,13 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
                 });
 
                 postAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 // Handle any errors that occur while fetching data
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

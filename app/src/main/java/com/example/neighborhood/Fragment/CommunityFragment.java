@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.neighborhood.Adapter.CommunityAdapter;
 import com.example.neighborhood.CommunityPost;
@@ -33,6 +34,7 @@ public class CommunityFragment extends Fragment {
     private RecyclerView communityRecyclerView;
     private CommunityAdapter communityAdapter;
     private Button addButton;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private DatabaseReference postsRef;
     private DatabaseReference usersRef;
@@ -54,6 +56,17 @@ public class CommunityFragment extends Fragment {
         communityRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         communityAdapter = new CommunityAdapter(communityPosts, requireActivity());
         communityRecyclerView.setAdapter(communityAdapter);
+        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
+
+        // Set up swipe-to-refresh action
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Handle the refresh action
+                // For example, call loadCommunityPosts() to reload the community posts
+                loadCommunityPosts();
+            }
+        });
 
         // Initialize "Add" button and set click listener
         addButton = rootView.findViewById(R.id.add_button);
@@ -88,11 +101,13 @@ public class CommunityFragment extends Fragment {
                 }
                 // Notify the adapter that data has changed
                 communityAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 // Handle errors
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
