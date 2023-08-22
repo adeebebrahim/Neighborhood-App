@@ -16,12 +16,7 @@
             android:padding="15dp"
             android:background="@color/grey">
 
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/logo"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginRight="10dp"/>
+
 
             <TextView
                 android:id="@+id/app_name"
@@ -67,3 +62,11 @@
 
     </RelativeLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+<!--<ImageView-->
+<!--android:layout_width="35dp"-->
+<!--android:layout_height="35dp"-->
+<!--android:src="@drawable/logo"-->
+<!--android:layout_gravity="center_horizontal"-->
+<!--android:layout_marginRight="10dp"/>-->

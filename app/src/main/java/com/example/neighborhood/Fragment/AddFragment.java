@@ -89,6 +89,12 @@ public class AddFragment extends Fragment {
                     return;
                 }
 
+                // Perform text analysis here
+                if (violatesDigitalCitizenshipRules(postText)) {
+                    Toast.makeText(getActivity(), "Your post violates digital citizenship rules", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 progressDialog.setMessage("Posting...");
                 progressDialog.setCancelable(false);
                 progressDialog.show();
@@ -218,4 +224,43 @@ public class AddFragment extends Fragment {
             }
         });
     }
+
+    private boolean violatesDigitalCitizenshipRules(String text) {
+        // Define a list of keywords that violate rules
+        String[] ruleKeywords = {
+                "hate", "bullying", "offensive", "harassment", "explicit",
+                "racist", "sexist", "homophobic", "threat", "cyberbullying",
+                "troll", "spam", "phishing", "scam", "fraud",
+                "abusive", "intimidating", "insult", "discrimination", "stalking",
+                "inappropriate", "vulgar", "disrespectful", "disruptive", "hurtful",
+                "derogatory", "misogynistic", "xenophobic", "obscene", "profanity",
+                "hateful", "defamatory", "incite", "violence", "non-consensual",
+                "doxxing", "blackmail", "extremist", "radical", "hijack",
+                "malicious", "degrading", "victimize", "nude", "shaming",
+                "hurtful", "shock", "hatemongering", "trolling", "meme",
+                "swearing", "disparaging", "off-color", "racial slurs", "lewd",
+                "objectionable", "provocative", "defacement", "harmful", "obstructive",
+                "malware", "virus", "exploit", "invasion", "phishing",
+                "deceptive", "imposter", "impostor", "spoof", "stalker",
+                "aggressive", "annoying", "manipulative", "cruel", "invasive",
+                "cyberstalking", "revenge porn", "plagiarism", "impersonation", "spamming",
+                "doomscrolling", "disinformation", "propaganda", "hoax", "cult",
+                "cultist", "unethical", "propagate", "toxic", "controversial",
+                "falsehood", "incendiary", "oppressive", "phobic", "discredit"
+        };
+
+
+        // Convert text to lowercase for case-insensitive matching
+        text = text.toLowerCase();
+
+        // Check if any rule keyword is present in the text
+        for (String keyword : ruleKeywords) {
+            if (text.contains(keyword)) {
+                return true; // Text violates rules
+            }
+        }
+
+        return false; // Text is acceptable
+    }
+
 }

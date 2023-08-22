@@ -1,0 +1,51 @@
+<!-- fragment_slide.xml -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/logo" />
+
+    <!-- Display a welcoming message -->
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to the Neighborhood App!"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_below="@+id/imageView"
+        android:layout_marginTop="50dp"
+        android:textColor="@android:color/black"
+        android:layout_centerInParent="true"
+        android:padding="16dp" />
+
+    <TextView
+        android:id="@+id/moretextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="• Explore your community like never before.
+        \n• Connect with your neighbors and make new friends.
+        \n• Discover hidden gems and attractions in your area."
+        android:textSize="18sp"
+        android:layout_below="@+id/textView"
+        android:layout_marginTop="25dp"
+        android:textColor="@android:color/black"
+        android:layout_centerInParent="true"
+        android:padding="16dp" />
+
+    <!-- Add the "Finish" button -->
+    <Button
+        android:id="@+id/finishButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Finish"
+        android:layout_margin="25dp"
+        android:visibility="gone"/> <!-- Initially set to gone -->
+</RelativeLayout>
