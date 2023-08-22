@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.neighborhood.Login;
 import com.example.neighborhood.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,6 +41,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -93,6 +95,7 @@ public class EditProfileFragment extends Fragment {
         btnSave = rootView.findViewById(R.id.btnSave);
         btnChangePassword = rootView.findViewById(R.id.btnChangePassword);
         profileImageView = rootView.findViewById(R.id.profileImageView);
+        btnDeleteAccount = rootView.findViewById(R.id.btnDeleteAccount);
 
         if (currentUser != null) {
             String userId = currentUser.getUid();
@@ -159,6 +162,12 @@ public class EditProfileFragment extends Fragment {
             }
         });
 
+        btnDeleteAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeleteAccountConfirmationDialog();
+            }
+        });
 
         return rootView;
     }
@@ -363,5 +372,271 @@ public class EditProfileFragment extends Fragment {
                         }
                     });
         }
+    }
+
+    private void showDeleteAccountConfirmationDialog() {
+        AlertDialog.Builder confirmDialogBuilder = new AlertDialog.Builder(requireContext());
+        confirmDialogBuilder.setTitle("Delete Account");
+        confirmDialogBuilder.setMessage("Are you sure you want to delete your account?");
+        confirmDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showPasswordVerificationDialog();
+            }
+        });
+        confirmDialogBuilder.setNegativeButton("No", null);
+        confirmDialogBuilder.show();
+    }
+
+    private void showPasswordVerificationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Verify Password");
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_verify_password, null);
+        builder.setView(view);
+
+        EditText passwordEditText = view.findViewById(R.id.passwordEditText);
+
+        builder.setPositiveButton("Verify", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String enteredPassword = passwordEditText.getText().toString().trim();
+
+                AuthCredential credential = EmailAuthProvider.getCredential(currentUser.getEmail(), enteredPassword);
+                currentUser.reauthenticate(credential)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                deleteUserAccount();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(requireContext(), "Password verification failed.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+
+        builder.create().show();
+    }
+
+    private void deleteUserAccount() {
+        DatabaseReference userRef = databaseUsers.child(currentUser.getUid());
+        // Delete user's profile data
+        userRef.removeValue();
+
+        // Delete user's posts and its comments and image
+        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference("posts");
+        Query userPostsQuery = postsRef.orderByChild("userId").equalTo(currentUser.getUid());
+        userPostsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String postId = postSnapshot.getKey();
+                    DatabaseReference postRef = postsRef.child(postId);
+
+                    // Delete post comments
+                    DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("Comments").child(postId);
+                    commentsRef.removeValue();
+
+                    // Delete post image from storage if it exists
+                    String imageUrl = postSnapshot.child("imageUrl").getValue(String.class);
+                    if (imageUrl != null && !imageUrl.isEmpty()) {
+                        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+                        storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // Image deleted successfully
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // Handle failure to delete image
+                            }
+                        });
+                    }
+
+                    // Delete post
+                    postSnapshot.getRef().removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle error if needed
+            }
+        });
+
+        // Delete user's events
+        DatabaseReference eventsRef = FirebaseDatabase.getInstance().getReference("Events");
+        Query userEventsQuery = eventsRef.orderByChild("userId").equalTo(currentUser.getUid());
+        userEventsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()) {
+                    String eventId = eventSnapshot.getKey();
+                    DatabaseReference eventRef = eventsRef.child(eventId);
+                    // Delete event
+                    eventRef.removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle error if needed
+            }
+        });
+
+        // Delete user's comments in other users' posts
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("Comments");
+        commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String postId = postSnapshot.getKey();
+                    for (DataSnapshot commentSnapshot : postSnapshot.getChildren()) {
+                        String commentId = commentSnapshot.getKey();
+                        String userId = commentSnapshot.child("userId").getValue(String.class);
+
+                        // Check if the comment belongs to the user being deleted
+                        if (userId != null && userId.equals(currentUser.getUid())) {
+                            // Delete the comment
+                            commentSnapshot.getRef().removeValue();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle error if needed
+            }
+        });
+
+        // Delete user's comments in other users' community posts
+        DatabaseReference communityCommentsRef = FirebaseDatabase.getInstance().getReference("CommunityComments");
+        communityCommentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String postId = postSnapshot.getKey();
+                    for (DataSnapshot commentSnapshot : postSnapshot.getChildren()) {
+                        String commentId = commentSnapshot.getKey();
+                        String userId = commentSnapshot.child("userId").getValue(String.class);
+
+                        // Check if the comment belongs to the user being deleted
+                        if (userId != null && userId.equals(currentUser.getUid())) {
+                            // Delete the comment
+                            commentSnapshot.getRef().removeValue();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle error if needed
+            }
+        });
+
+
+        // Delete user's community posts and associated comments
+        DatabaseReference communityPostsRef = FirebaseDatabase.getInstance().getReference("CommunityPosts");
+        Query userCommunityPostsQuery = communityPostsRef.orderByChild("userId").equalTo(currentUser.getUid());
+        userCommunityPostsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot communityPostSnapshot : dataSnapshot.getChildren()) {
+                    String postId = communityPostSnapshot.getKey();
+                    DatabaseReference postRef = communityPostsRef.child(postId);
+
+                    // Delete post comments
+                    DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("CommunityComments").child(postId);
+                    commentsRef.removeValue();
+
+                    // Delete post
+                    postRef.removeValue();
+
+                    // Delete user's comments on other community posts
+                    DatabaseReference userCommentsRef = FirebaseDatabase.getInstance().getReference("CommunityComments");
+                    Query userCommentsQuery = userCommentsRef.orderByChild("userId").equalTo(currentUser.getUid());
+                    userCommentsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for (DataSnapshot commentSnapshot : dataSnapshot.getChildren()) {
+                                String commentId = commentSnapshot.getKey();
+                                String commentPostId = commentSnapshot.child("postId").getValue(String.class);
+                                if (!commentPostId.equals(postId)) {
+                                    DatabaseReference commentRef = userCommentsRef.child(commentId);
+                                    commentRef.removeValue();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            // Handle error if needed
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle error if needed
+            }
+        });
+
+
+        // Delete user's messages
+        DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("Messages");
+        messagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userIds = userSnapshot.getKey();
+                    for (DataSnapshot messageSnapshot : userSnapshot.getChildren()) {
+                        String messageId = messageSnapshot.getKey();
+                        String senderUserId = messageSnapshot.child("senderUserId").getValue(String.class);
+                        String recipientUserId = messageSnapshot.child("recipientUserId").getValue(String.class);
+
+                        // Check if the sender or recipient is the user being deleted
+                        if (senderUserId.equals(currentUser.getUid()) || recipientUserId.equals(currentUser.getUid())) {
+                            // Delete the message
+                            messageSnapshot.getRef().removeValue();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle error if needed
+            }
+        });
+
+
+        currentUser.delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Account deleted successfully
+                        // Redirect the user to the login screen or perform any other necessary action
+                        Intent intent = new Intent(requireContext(), Login.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        requireActivity().finish();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(requireContext(), "Failed to delete account.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
