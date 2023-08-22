@@ -67,5 +67,22 @@
         android:layout_gravity="center_horizontal"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnChangePassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Password"
+        android:layout_gravity="center_horizontal"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    <!-- Delete Account Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDeleteAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete Account"
+        android:layout_gravity="center_horizontal"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:textColor="@android:color/holo_red_dark" />
 
 </LinearLayout>

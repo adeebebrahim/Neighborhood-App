@@ -8,10 +8,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -29,6 +32,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -50,7 +55,9 @@ public class EditProfileFragment extends Fragment {
     private EditText editTextMobileno;
     private EditText editTextBio;
     private Button btnSave;
+    private Button btnChangePassword;
     private ImageView profileImageView;
+    private Button btnDeleteAccount;
 
     private FirebaseAuth mAuth;
     private DatabaseReference databaseUsers;
@@ -84,6 +91,7 @@ public class EditProfileFragment extends Fragment {
         editTextEmail = rootView.findViewById(R.id.editTextEmail);
         editTextMobileno = rootView.findViewById(R.id.editTextPhone);
         btnSave = rootView.findViewById(R.id.btnSave);
+        btnChangePassword = rootView.findViewById(R.id.btnChangePassword);
         profileImageView = rootView.findViewById(R.id.profileImageView);
 
         if (currentUser != null) {
@@ -143,7 +151,77 @@ public class EditProfileFragment extends Fragment {
             }
         });
 
+        btnChangePassword = rootView.findViewById(R.id.btnChangePassword);
+        btnChangePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showChangePasswordDialog();
+            }
+        });
+
+
         return rootView;
+    }
+
+    private void showChangePasswordDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Change Password");
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_change_password, null);
+        builder.setView(view);
+
+        EditText oldPasswordEditText = view.findViewById(R.id.oldPasswordEditText);
+        EditText newPasswordEditText = view.findViewById(R.id.newPasswordEditText);
+        CheckBox showPasswordCheckBox = view.findViewById(R.id.showPasswordCheckBox);
+
+        showPasswordCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                int inputType = isChecked ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                newPasswordEditText.setInputType(inputType);
+            }
+        });
+
+        builder.setPositiveButton("Change", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String oldPassword = oldPasswordEditText.getText().toString().trim();
+                String newPassword = newPasswordEditText.getText().toString().trim();
+
+                if (currentUser != null) {
+                    AuthCredential credential = EmailAuthProvider.getCredential(currentUser.getEmail(), oldPassword);
+                    currentUser.reauthenticate(credential)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    currentUser.updatePassword(newPassword)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Toast.makeText(requireContext(), "Password changed successfully", Toast.LENGTH_SHORT).show();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(requireContext(), "Failed to change password", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(requireContext(), "Authentication failed. Check your old password.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+
+        builder.create().show();
     }
 
     private void showImageSelectionDialog() {
