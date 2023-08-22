@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -16,14 +16,22 @@
             android:padding="15dp"
             android:background="@color/grey">
 
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/logo"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginRight="10dp"/>
+
             <TextView
                 android:id="@+id/app_name"
-                android:layout_width="wrap_content"
+                android:layout_width="135dp"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:fontFamily="@font/lobster_two_bold"
                 android:text="Neighborhood"
-                android:textStyle="bold"
                 android:textSize="24dp"
-                android:layout_alignParentStart="true"/>
+                android:textStyle="bold" />
 
             <!-- Add a spacer to push the image views to the right -->
             <Space
@@ -36,14 +44,16 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_search"
-                android:layout_gravity="center_vertical"/>
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="10dp"/>
 
             <ImageView
                 android:id="@+id/message_icon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_message"
-                android:layout_gravity="center_vertical"/>
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="1dp"/>
         </LinearLayout>
 
         <!-- RecyclerView to display the posts -->
