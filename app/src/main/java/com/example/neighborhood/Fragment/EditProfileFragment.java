@@ -28,6 +28,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Login;
 import com.example.neighborhood.R;
+import com.example.neighborhood.User;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -42,12 +43,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class EditProfileFragment extends Fragment {
 
@@ -426,8 +429,73 @@ public class EditProfileFragment extends Fragment {
 
     private void deleteUserAccount() {
         DatabaseReference userRef = databaseUsers.child(currentUser.getUid());
-        // Delete user's profile data
-        userRef.removeValue();
+
+        String userIdToDelete = currentUser.getUid();
+        updateFollowersAndFollowing(userIdToDelete);
+
+//        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+//        DatabaseReference currentUserRef = usersRef.child(currentUser.getUid());
+//
+//        currentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    // Get the user's followers and following lists
+//                    Map<String, Boolean> followersMap = new HashMap<>();
+//                    Map<String, Boolean> followingMap = new HashMap<>();
+//
+//                    if (dataSnapshot.child("followers").exists()) {
+//                        followersMap = (Map<String, Boolean>) dataSnapshot.child("followers").getValue();
+//                    }
+//                    if (dataSnapshot.child("following").exists()) {
+//                        followingMap = (Map<String, Boolean>) dataSnapshot.child("following").getValue();
+//                    }
+//
+//                    // Iterate through followers and update their following count
+//                    for (String followerId : followersMap.keySet()) {
+//                        DatabaseReference followerRef = usersRef.child(followerId);
+//                        followerRef.child("followingCount").setValue(
+//                                dataSnapshot.child(followerId).child("followingCount").getValue(Integer.class) - 1
+//                        );
+//
+//                        // Remove the deleting user from the followers of the follower
+//                        followerRef.child("followers").child(currentUser.getUid()).removeValue();
+//                    }
+//
+//                    // Iterate through following and update their followers count
+//                    for (String followingId : followingMap.keySet()) {
+//                        DatabaseReference followingRef = usersRef.child(followingId);
+//                        followingRef.child("followerCount").setValue(
+//                                dataSnapshot.child(followingId).child("followerCount").getValue(Integer.class) - 1
+//                        );
+//
+//                        // Remove the deleting user from the following of the followed user
+//                        followingRef.child("following").child(currentUser.getUid()).removeValue();
+//                    }
+//
+//                    // Now you can proceed with deleting the user's account
+//                    currentUser.delete()
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    // Account deleted successfully
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    // Handle failure if needed
+//                                }
+//                            });
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                // Handle error if needed
+//            }
+//        });
+
 
         // Delete user's posts and its comments and image
         DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference("posts");
@@ -620,6 +688,11 @@ public class EditProfileFragment extends Fragment {
         });
 
 
+
+
+        // Delete user's profile data
+        userRef.removeValue();
+
         currentUser.delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -639,4 +712,42 @@ public class EditProfileFragment extends Fragment {
                     }
                 });
     }
+
+    private void updateFollowersAndFollowing(String userIdToDelete) {
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userId = userSnapshot.getKey();
+                    if (!userId.equals(userIdToDelete)) {
+                        // Check if the user to be deleted is following this user
+                        if (userSnapshot.child("followers").child(userIdToDelete).exists()) {
+                            // Remove the user to be deleted from the followers of this user
+                            userSnapshot.child("followers").child(userIdToDelete).getRef().removeValue();
+                            // Decrement the follower count
+                            int followerCount = userSnapshot.child("followerCount").getValue(Integer.class);
+                            userSnapshot.child("followerCount").getRef().setValue(followerCount - 1);
+                        }
+
+                        // Check if the user to be deleted is followed by this user
+                        if (userSnapshot.child("following").child(userIdToDelete).exists()) {
+                            // Remove the user to be deleted from the following of this user
+                            userSnapshot.child("following").child(userIdToDelete).getRef().removeValue();
+                            // Decrement the following count
+                            int followingCount = userSnapshot.child("followingCount").getValue(Integer.class);
+                            userSnapshot.child("followingCount").getRef().setValue(followingCount - 1);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle error if needed
+            }
+        });
+    }
+
 }
