@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,7 +35,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -43,7 +43,9 @@ public class AddFragment extends Fragment {
     private EditText editText;
     private ImageView addImageIcon;
     private ImageView profileImageView;
+    private ImageView selectedImage;
     private Button btnCancel, btnPost;
+    private LinearLayout buttonsLayout;
 
     private Uri imageUri;
     private ProgressDialog progressDialog;
@@ -60,8 +62,10 @@ public class AddFragment extends Fragment {
         editText = rootView.findViewById(R.id.edit_text);
         addImageIcon = rootView.findViewById(R.id.add_image_icon);
         profileImageView = rootView.findViewById(R.id.profile_picture);
+        selectedImage = rootView.findViewById(R.id.selected_image);
         btnCancel = rootView.findViewById(R.id.btn_cancel);
         btnPost = rootView.findViewById(R.id.btn_post);
+        buttonsLayout = rootView.findViewById(R.id.buttons_layout);
 
         progressDialog = new ProgressDialog(getActivity());
 
@@ -91,7 +95,7 @@ public class AddFragment extends Fragment {
 
                 // Perform text analysis here
                 if (violatesDigitalCitizenshipRules(postText)) {
-                    Toast.makeText(getActivity(), "Your post violates digital citizenship rules", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Your post violates our Community Guidelines", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -154,7 +158,6 @@ public class AddFragment extends Fragment {
         }
     }
 
-
     private void openGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK);
         galleryIntent.setType("image/*");
@@ -166,7 +169,9 @@ public class AddFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == getActivity().RESULT_OK && data != null) {
             imageUri = data.getData();
-            addImageIcon.setImageURI(imageUri);
+            addImageIcon.setVisibility(View.VISIBLE); // Hide the "Add Image" icon
+            selectedImage.setVisibility(View.VISIBLE); // Show the selected image view
+            selectedImage.setImageURI(imageUri); // Set the selected image
         }
     }
 
@@ -227,28 +232,8 @@ public class AddFragment extends Fragment {
 
     private boolean violatesDigitalCitizenshipRules(String text) {
         // Define a list of keywords that violate rules
-        String[] ruleKeywords = {
-                "hate", "bullying", "offensive", "harassment", "explicit",
-                "racist", "sexist", "homophobic", "threat", "cyberbullying",
-                "troll", "spam", "phishing", "scam", "fraud",
-                "abusive", "intimidating", "insult", "discrimination", "stalking",
-                "inappropriate", "vulgar", "disrespectful", "disruptive", "hurtful",
-                "derogatory", "misogynistic", "xenophobic", "obscene", "profanity",
-                "hateful", "defamatory", "incite", "violence", "non-consensual",
-                "doxxing", "blackmail", "extremist", "radical", "hijack",
-                "malicious", "degrading", "victimize", "nude", "shaming",
-                "hurtful", "shock", "hatemongering", "trolling", "meme",
-                "swearing", "disparaging", "off-color", "racial slurs", "lewd",
-                "objectionable", "provocative", "defacement", "harmful", "obstructive",
-                "malware", "virus", "exploit", "invasion", "phishing",
-                "deceptive", "imposter", "impostor", "spoof", "stalker",
-                "aggressive", "annoying", "manipulative", "cruel", "invasive",
-                "cyberstalking", "revenge porn", "plagiarism", "impersonation", "spamming",
-                "doomscrolling", "disinformation", "propaganda", "hoax", "cult",
-                "cultist", "unethical", "propagate", "toxic", "controversial",
-                "falsehood", "incendiary", "oppressive", "phobic", "discredit"
-        };
-
+        String[] ruleKeywords = {"fuck","bitch","motherfucker","ass", "nigga",
+                "asshole","twat","cunt"};
 
         // Convert text to lowercase for case-insensitive matching
         text = text.toLowerCase();
@@ -262,5 +247,4 @@ public class AddFragment extends Fragment {
 
         return false; // Text is acceptable
     }
-
 }
