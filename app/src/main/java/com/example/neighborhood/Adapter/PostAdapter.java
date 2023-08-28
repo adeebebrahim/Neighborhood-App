@@ -3,10 +3,13 @@ package com.example.neighborhood.Adapter;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.neighborhood.Fragment.PostCommentsFragment;
 import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
+import com.example.neighborhood.Report;
 import com.example.neighborhood.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -133,7 +137,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
                     return true; // Consume the click event
                 } else {
-                    // Display an error message
+                    // Show a report confirmation dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setMessage("Report this post?");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Show a report reason dialog
+                            showReportReasonDialog(post);
+                        }
+                    });
+                    builder.setNegativeButton("No", null);
+                    builder.show();
 
                     return true; // Consume the click event
                 }
@@ -305,6 +320,81 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 // Handle failure
             }
         });
+    }
+
+    private void showReportReasonDialog(Post post) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Report Post");
+
+        // Inflate a custom layout for the report reasons
+        View reportReasonsView = LayoutInflater.from(context).inflate(R.layout.dialog_report_reasons, null);
+
+        String[] reportReasons = {"Inappropriate content", "Spam", "Harassment", "Other"};
+
+        ListView reasonsListView = reportReasonsView.findViewById(R.id.reasons_list_view);
+        ArrayAdapter<String> reasonsAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_single_choice, reportReasons);
+        reasonsListView.setAdapter(reasonsAdapter);
+
+        builder.setView(reportReasonsView);
+
+        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                int selectedPosition = reasonsListView.getCheckedItemPosition();
+                if (selectedPosition != ListView.INVALID_POSITION) {
+                    String selectedReason = reportReasons[selectedPosition];
+                    showReportConfirmationDialog(post, selectedReason);
+                } else {
+                    // No reason selected
+                    // You can show a message to the user if desired
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+
+    private void showReportConfirmationDialog(Post post, String reason) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Confirm Report");
+        builder.setMessage("Are you sure you want to report this post for the following reason?\n\n" + reason);
+
+        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Call a method to save the report to Firebase
+                saveReportToFirebase(post, reason);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+
+
+    private void saveReportToFirebase(Post post, String reason) {
+        DatabaseReference reportsRef = FirebaseDatabase.getInstance().getReference().child("Reports");
+        String reportId = reportsRef.push().getKey();
+
+        Report report = new Report(reportId, currentUser.getUid(), post.getPostId(), reason, System.currentTimeMillis());
+        reportsRef.child(reportId).setValue(report)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(context, "Post reported successfully", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context, "Report submission failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 }
