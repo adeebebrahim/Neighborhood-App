@@ -2,8 +2,9 @@ package com.example.neighborhood;
 
 public class Report {
     private String reportId;
-    private String reporterId;
+    private String userId;
     private String postId;
+    private String commentId; // Add this field for comments
     private String reason;
     private long timestamp;
 
@@ -11,10 +12,22 @@ public class Report {
         // Default constructor required for Firebase
     }
 
-    public Report(String reportId, String reporterId, String postId, String reason, long timestamp) {
+    // Constructor for reporting posts
+    public Report(String reportId, String userId, String postId, String reason, long timestamp) {
         this.reportId = reportId;
-        this.reporterId = reporterId;
+        this.userId = userId;
         this.postId = postId;
+        this.reason = reason;
+        this.timestamp = timestamp;
+        this.commentId = null; // Set commentId as null for reporting posts
+    }
+
+    // Constructor for reporting comments
+    public Report(String reportId, String userId, String postId, String commentId, String reason, long timestamp) {
+        this.reportId = reportId;
+        this.userId = userId;
+        this.postId = postId;
+        this.commentId = commentId;
         this.reason = reason;
         this.timestamp = timestamp;
     }
@@ -27,12 +40,12 @@ public class Report {
         this.reportId = reportId;
     }
 
-    public String getReporterId() {
-        return reporterId;
+    public String getuserId() {
+        return userId;
     }
 
-    public void setReporterId(String reporterId) {
-        this.reporterId = reporterId;
+    public void setuserId(String reporterId) {
+        this.userId = reporterId;
     }
 
     public String getPostId() {
@@ -41,6 +54,14 @@ public class Report {
 
     public void setPostId(String postId) {
         this.postId = postId;
+    }
+
+    public String getcommentId() {
+        return commentId;
+    }
+
+    public void setcommentId(String commentId) {
+        this.commentId = commentId;
     }
 
     public String getReason() {

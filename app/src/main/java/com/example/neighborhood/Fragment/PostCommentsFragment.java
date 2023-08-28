@@ -98,7 +98,7 @@ public class PostCommentsFragment extends Fragment {
 
                 // Set up RecyclerView for comments
                 commentList = new ArrayList<>();
-                commentAdapter = new CommentAdapter(commentList);
+                commentAdapter = new CommentAdapter(commentList, requireContext());
                 commentsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 commentsRecyclerView.setAdapter(commentAdapter);
 

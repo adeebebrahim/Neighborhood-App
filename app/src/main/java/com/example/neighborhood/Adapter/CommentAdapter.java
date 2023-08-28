@@ -1,12 +1,17 @@
 package com.example.neighborhood.Adapter;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,8 +20,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Comment;
+import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
+import com.example.neighborhood.Report;
 import com.example.neighborhood.User;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -31,9 +40,11 @@ import java.util.List;
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
     private List<Comment> commentList;
+    private Context context; // Add this field
 
-    public CommentAdapter(List<Comment> commentList) {
+    public CommentAdapter(List<Comment> commentList, Context context) { // Modify the constructor
         this.commentList = commentList;
+        this.context = context;
     }
 
     @NonNull
@@ -85,24 +96,34 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             @Override
             public boolean onLongClick(View v) {
                 if (comment.getUserId().equals(getCurrentUserId())) {
-                    // Show a confirmation dialog
-                    AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
-                    builder.setMessage("Delete this comment?");
-                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    // Show a confirmation dialog for deleting the comment
+                    AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(context);
+                    deleteBuilder.setMessage("Delete this comment?");
+                    deleteBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Delete the comment
                             deleteComment(comment);
                         }
                     });
-                    builder.setNegativeButton("No", null);
-                    builder.show();
-
-                    return true; // Consume the click event
+                    deleteBuilder.setNegativeButton("No", null);
+                    deleteBuilder.show();
                 } else {
-                    // Display an error message or take other action
-                    return true; // Consume the click event
+                    // Show a report confirmation dialog
+                    AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
+                    reportBuilder.setMessage("Report this comment?");
+                    reportBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Show a report reason dialog
+                            showCommentReportReasonDialog(comment);
+                        }
+                    });
+                    reportBuilder.setNegativeButton("No", null);
+                    reportBuilder.show();
                 }
+
+                return true; // Consume the click event
             }
         });
     }
@@ -143,4 +164,77 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         return currentUser != null ? currentUser.getUid() : null;
     }
 
+    private void showCommentReportReasonDialog(Comment comment) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Report Comment");
+
+        // Inflate a custom layout for the report reasons
+        View reportReasonsView = LayoutInflater.from(context).inflate(R.layout.dialog_report_reasons, null);
+
+        String[] reportReasons = {"Inappropriate content", "Spam", "Harassment", "Other"};
+
+        ListView reasonsListView = reportReasonsView.findViewById(R.id.reasons_list_view);
+        ArrayAdapter<String> reasonsAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_single_choice, reportReasons);
+        reasonsListView.setAdapter(reasonsAdapter);
+
+        builder.setView(reportReasonsView);
+
+        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                int selectedPosition = reasonsListView.getCheckedItemPosition();
+                if (selectedPosition != ListView.INVALID_POSITION) {
+                    String selectedReason = reportReasons[selectedPosition];
+                    showCommentReportConfirmationDialog(comment, selectedReason);
+                } else {
+                    // No reason selected
+                    // You can show a message to the user if desired
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showCommentReportConfirmationDialog(Comment comment, String reason) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Confirm Report");
+        builder.setMessage("Are you sure you want to report this comment for the following reason?\n\n" + reason);
+
+        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Call a method to save the report to Firebase for comments
+                saveCommentReportToFirebase(comment, reason);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    private void saveCommentReportToFirebase(Comment comment, String reason) {
+        DatabaseReference reportsRef = FirebaseDatabase.getInstance().getReference().child("CommentReports");
+        String reportId = reportsRef.push().getKey();
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            Report report = new Report(reportId, currentUser.getUid(), comment.getPostId(), comment.getCommentId(), reason, System.currentTimeMillis());
+            reportsRef.child(reportId).setValue(report)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(context, "Comment reported successfully", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(context, "Report submission failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
 }
