@@ -177,7 +177,7 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         TextView titleTextView;
         TextView descriptionTextView;
         TextView timestampTextView;
-        MaterialButton commentButton;
+        ImageView commentButton;
         TextView commentTextView;
 
         public CommunityViewHolder(@NonNull View itemView) {

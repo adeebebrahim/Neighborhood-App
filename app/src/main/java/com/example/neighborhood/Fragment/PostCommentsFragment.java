@@ -46,11 +46,11 @@ public class PostCommentsFragment extends Fragment {
     private TextView postTextView;
     private ImageView postImageView;
     private TextView timestampTextView;
-    private Button likeButton;
-    private Button commentButton;
+    private ImageView likeButton;
+    private ImageView commentButton;
     private RecyclerView commentsRecyclerView;
     private EditText commentEditText;
-    private Button submitCommentButton;
+    private ImageView submitCommentButton;
     private TextView likeTextView;
     private TextView commentTextView;
 
@@ -157,9 +157,9 @@ public class PostCommentsFragment extends Fragment {
 
         // Inside your onCreateView() or onViewCreated() method
         if (post.getLikedByUsers().contains(getCurrentUserId())) {
-            likeButton.setText("Liked");
+            likeButton.setImageResource(R.drawable.ic_like);
         } else {
-            likeButton.setText("Like");
+            likeButton.setImageResource(R.drawable.ic_likeoutlined);
         }
 
         likeButton.setOnClickListener(new View.OnClickListener() {
@@ -171,11 +171,11 @@ public class PostCommentsFragment extends Fragment {
                 if (post.getLikedByUsers().contains(getCurrentUserId())) {
                     // Remove user's like
                     post.getLikedByUsers().remove(getCurrentUserId());
-                    likeButton.setText("Like");
+                    likeButton.setImageResource(R.drawable.ic_likeoutlined);
                 } else {
                     // Add user's like
                     post.getLikedByUsers().add(getCurrentUserId());
-                    likeButton.setText("Liked");
+                    likeButton.setImageResource(R.drawable.ic_like);
                 }
 
                 // Update the post's likedByUsers field in the database

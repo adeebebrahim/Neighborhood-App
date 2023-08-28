@@ -96,24 +96,22 @@
         android:orientation="horizontal"
         android:layout_marginTop="8dp">
 
-        <com.google.android.material.button.MaterialButton
+        <!-- Replace Like Button with Icon -->
+        <ImageView
             android:id="@+id/like_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Like"
-            android:textSize="14sp"
-            android:paddingHorizontal="8dp"
-            android:layout_marginEnd="8dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            android:src="@drawable/ic_likeoutlined"
+            android:contentDescription="Like"
+            android:layout_marginEnd="8dp"/>
 
-        <com.google.android.material.button.MaterialButton
+        <!-- Replace Comment Button with Icon -->
+        <ImageView
             android:id="@+id/comment_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Comment"
-            android:textSize="14sp"
-            android:paddingHorizontal="8dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            android:src="@drawable/ic_comment"
+            android:contentDescription="Comment"/>
 
     </LinearLayout>
 

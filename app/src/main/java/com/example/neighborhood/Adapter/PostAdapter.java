@@ -141,9 +141,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         });
 
         if (post.getLikedByUsers().contains(currentUser.getUid())) {
-            holder.likeButton.setText("Liked");
+            holder.likeButton.setImageResource(R.drawable.ic_like);
         } else {
-            holder.likeButton.setText("Like");
+            holder.likeButton.setImageResource(R.drawable.ic_likeoutlined);
         }
         holder.likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,11 +152,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 if (post.getLikedByUsers().contains(currentUser.getUid())) {
                     // Remove user's like
                     post.getLikedByUsers().remove(currentUser.getUid());
-                    holder.likeButton.setText("Like");
+                    holder.likeButton.setImageResource(R.drawable.ic_likeoutlined); // Set unliked icon
                 } else {
                     // Add user's like
                     post.getLikedByUsers().add(currentUser.getUid());
-                    holder.likeButton.setText("Liked");
+                    holder.likeButton.setImageResource(R.drawable.ic_like); // Set liked icon
                 }
 
                 // Update the post's likedByUsers field in the database
@@ -164,6 +164,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 postsRef.child("likedByUsers").setValue(post.getLikedByUsers());
             }
         });
+
 
         // Set click listeners
         holder.commentButton.setOnClickListener(new View.OnClickListener() {
@@ -234,8 +235,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView postTextView;
         TextView timestampTextView;
         ImageView postImageView;
-        MaterialButton commentButton; // Use MaterialButton for comment button
-        MaterialButton likeButton;
+        ImageView commentButton; // Use MaterialButton for comment button
+        ImageView likeButton;
         TextView likeTextView;
         TextView commentTextView;
 

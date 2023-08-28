@@ -46,6 +46,7 @@ public class BottomNavigationListener implements BottomNavigationView.OnNavigati
         if (selectedFragment != null) {
             ((MainActivity) context).getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, selectedFragment)
+                    .addToBackStack(null)
                     .commit();
         }
 

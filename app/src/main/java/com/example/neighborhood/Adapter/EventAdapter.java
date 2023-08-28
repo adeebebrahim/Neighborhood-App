@@ -151,7 +151,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         TextView dateTextView;
         TextView timeTextView;
         TextView descriptionTextView;
-        Button addToReminderButton;
+        ImageView addToReminderButton;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);

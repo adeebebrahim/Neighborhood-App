@@ -48,7 +48,6 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
     private TextView followersTextView;
     private TextView followingTextView;
     private ImageView profileImageView;
-    private Button btnlogout;
     private Button btnedit;
     private RecyclerView postRecyclerView;
     private PostAdapter postAdapter;
@@ -70,7 +69,6 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
         bioTextView = rootView.findViewById(R.id.bio_text);
         followersTextView = rootView.findViewById(R.id.followers_text);
         followingTextView = rootView.findViewById(R.id.following_text);
-        btnlogout = rootView.findViewById(R.id.btn_logout);
         btnedit = rootView.findViewById(R.id.btn_edit);
         profileImageView = rootView.findViewById(R.id.profile_image);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
@@ -82,14 +80,6 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
                 // Handle the refresh action
                 // For example, call loadUserPosts() to reload the user's posts
                 loadUserPosts();
-            }
-        });
-
-        // Set click listeners for the logout and edit buttons
-        btnlogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logoutUser();
             }
         });
 
@@ -192,18 +182,6 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-    }
-
-    private void logoutUser() {
-        FirebaseAuth.getInstance().signOut();
-
-        // Start the Login activity
-        Intent intent = new Intent(getActivity(), Login.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-
-        // Finish the current activity (optional, if needed)
-        getActivity().finish();
     }
 
     private void navigateToEditProfile() {

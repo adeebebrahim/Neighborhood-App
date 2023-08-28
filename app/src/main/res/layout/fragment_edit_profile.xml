@@ -85,4 +85,12 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:textColor="@android:color/holo_red_dark" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/logout"
+        android:layout_gravity="center_horizontal"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
 </LinearLayout>

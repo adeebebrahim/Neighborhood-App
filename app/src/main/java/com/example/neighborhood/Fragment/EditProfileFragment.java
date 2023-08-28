@@ -63,6 +63,7 @@ public class EditProfileFragment extends Fragment {
     private Button btnChangePassword;
     private ImageView profileImageView;
     private Button btnDeleteAccount;
+    private Button btnlogout;
 
     private FirebaseAuth mAuth;
     private DatabaseReference databaseUsers;
@@ -99,6 +100,7 @@ public class EditProfileFragment extends Fragment {
         btnChangePassword = rootView.findViewById(R.id.btnChangePassword);
         profileImageView = rootView.findViewById(R.id.profileImageView);
         btnDeleteAccount = rootView.findViewById(R.id.btnDeleteAccount);
+        btnlogout = rootView.findViewById(R.id.btn_logout);
 
         if (currentUser != null) {
             String userId = currentUser.getUid();
@@ -143,6 +145,14 @@ public class EditProfileFragment extends Fragment {
             });
         }
 
+        // Set click listeners for the logout and edit buttons
+        btnlogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logoutUser();
+            }
+        });
+
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -173,6 +183,19 @@ public class EditProfileFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+
+    private void logoutUser() {
+        FirebaseAuth.getInstance().signOut();
+
+        // Start the Login activity
+        Intent intent = new Intent(getActivity(), Login.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        // Finish the current activity (optional, if needed)
+        getActivity().finish();
     }
 
     private void showChangePasswordDialog() {
@@ -432,70 +455,6 @@ public class EditProfileFragment extends Fragment {
 
         String userIdToDelete = currentUser.getUid();
         updateFollowersAndFollowing(userIdToDelete);
-
-//        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
-//        DatabaseReference currentUserRef = usersRef.child(currentUser.getUid());
-//
-//        currentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()) {
-//                    // Get the user's followers and following lists
-//                    Map<String, Boolean> followersMap = new HashMap<>();
-//                    Map<String, Boolean> followingMap = new HashMap<>();
-//
-//                    if (dataSnapshot.child("followers").exists()) {
-//                        followersMap = (Map<String, Boolean>) dataSnapshot.child("followers").getValue();
-//                    }
-//                    if (dataSnapshot.child("following").exists()) {
-//                        followingMap = (Map<String, Boolean>) dataSnapshot.child("following").getValue();
-//                    }
-//
-//                    // Iterate through followers and update their following count
-//                    for (String followerId : followersMap.keySet()) {
-//                        DatabaseReference followerRef = usersRef.child(followerId);
-//                        followerRef.child("followingCount").setValue(
-//                                dataSnapshot.child(followerId).child("followingCount").getValue(Integer.class) - 1
-//                        );
-//
-//                        // Remove the deleting user from the followers of the follower
-//                        followerRef.child("followers").child(currentUser.getUid()).removeValue();
-//                    }
-//
-//                    // Iterate through following and update their followers count
-//                    for (String followingId : followingMap.keySet()) {
-//                        DatabaseReference followingRef = usersRef.child(followingId);
-//                        followingRef.child("followerCount").setValue(
-//                                dataSnapshot.child(followingId).child("followerCount").getValue(Integer.class) - 1
-//                        );
-//
-//                        // Remove the deleting user from the following of the followed user
-//                        followingRef.child("following").child(currentUser.getUid()).removeValue();
-//                    }
-//
-//                    // Now you can proceed with deleting the user's account
-//                    currentUser.delete()
-//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                @Override
-//                                public void onSuccess(Void aVoid) {
-//                                    // Account deleted successfully
-//                                }
-//                            })
-//                            .addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    // Handle failure if needed
-//                                }
-//                            });
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                // Handle error if needed
-//            }
-//        });
-
 
         // Delete user's posts and its comments and image
         DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference("posts");

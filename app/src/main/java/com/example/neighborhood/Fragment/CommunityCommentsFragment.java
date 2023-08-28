@@ -50,7 +50,7 @@ public class CommunityCommentsFragment extends Fragment {
     private TextView timestampTextView;
     private RecyclerView commentsRecyclerView;
     private EditText commentEditText;
-    private Button submitCommentButton;
+    private ImageView submitCommentButton;
 
     private List<CommunityComment> commentList; // Use the correct class here
     private CommunityCommentAdapter commentAdapter; // Update the adapter name
