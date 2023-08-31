@@ -229,19 +229,23 @@ public class EditProfileFragment extends Fragment {
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    currentUser.updatePassword(newPassword)
-                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    Toast.makeText(requireContext(), "Password changed successfully", Toast.LENGTH_SHORT).show();
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Toast.makeText(requireContext(), "Failed to change password", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
+                                    if (isValidPassword(newPassword)) {
+                                        currentUser.updatePassword(newPassword)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Toast.makeText(requireContext(), "Password changed successfully", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(requireContext(), "Failed to change password", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    } else {
+                                        Toast.makeText(requireContext(), "Password must be at least 6 characters long", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -258,6 +262,11 @@ public class EditProfileFragment extends Fragment {
 
         builder.create().show();
     }
+
+    private boolean isValidPassword(CharSequence password) {
+        return password.length() >= 6;
+    }
+
 
     private void showImageSelectionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
