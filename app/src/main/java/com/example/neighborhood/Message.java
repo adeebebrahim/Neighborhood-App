@@ -1,6 +1,7 @@
 package com.example.neighborhood;
 
 public class Message {
+    private String messageId; // New field for message ID
     private String messageText;
     private String senderUserId;
     private String recipientUserId;
@@ -13,6 +14,14 @@ public class Message {
         this.messageText = messageText;
         this.senderUserId = senderUserId;
         this.recipientUserId = recipientUserId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public String getMessageText() {

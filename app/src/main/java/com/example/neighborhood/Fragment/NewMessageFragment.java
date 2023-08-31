@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -119,6 +120,7 @@ public class NewMessageFragment extends Fragment {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 sendMessage();
             }
         });
@@ -177,11 +179,16 @@ public class NewMessageFragment extends Fragment {
     }
 
 
-    // Inside the sendMessage method
     private void sendMessage() {
         String messageText = messageEditText.getText().toString();
         String senderUserId = getCurrentUserId();
         String chatId = getChatId();
+
+        // Perform text analysis here
+        if (violatesRules(messageText)) {
+            showGuidelinesViolationDialog();
+            return;
+        }
 
         if (!messageText.isEmpty() && senderUserId != null && chatId != null) {
             DatabaseReference chatRef = messagesRef.child(chatId);
@@ -189,10 +196,23 @@ public class NewMessageFragment extends Fragment {
 
             if (messageId != null) {
                 Message message = new Message(messageText, senderUserId, recipientUserId);
+                message.setMessageId(messageId); // Set the message ID
                 chatRef.child(messageId).setValue(message);
                 messageEditText.setText(""); // Clear the message text field after sending
             }
         }
+    }
+
+
+
+    private void showGuidelinesViolationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Guidelines Violation");
+        builder.setMessage("Your message violates our Community Guidelines. We are committed to maintaining a respectful and inclusive environment. " +
+                "\n• Bullying\n• Harassment\n• Use of inappropriate language \nare not tolerated here. Please ensure that your messages are respectful and adhere to our guidelines. Thank you for helping us create a positive community.");
+        builder.setPositiveButton("OK", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 
@@ -214,5 +234,23 @@ public class NewMessageFragment extends Fragment {
             }
         }
         return null;
+    }
+
+    private boolean violatesRules(String text) {
+        // Define a list of keywords that violate rules
+        String[] ruleKeywords = {"fuck","bitch","motherfucker","ass", "nigga",
+                "asshole","twat","cunt"};
+
+        // Convert text to lowercase for case-insensitive matching
+        text = text.toLowerCase();
+
+        // Check if any rule keyword is present in the text
+        for (String keyword : ruleKeywords) {
+            if (text.contains(keyword)) {
+                return true; // Text violates rules
+            }
+        }
+
+        return false; // Text is acceptable
     }
 }
