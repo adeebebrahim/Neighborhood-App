@@ -105,7 +105,34 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
     }
 
     private void fetchPostsFromFirebase() {
-        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts");
+        DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference()
+                .child("Users").child(currentUser.getUid());
+
+        currentUserRef.child("following").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<String> followedUserIds = new ArrayList<>();
+
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    followedUserIds.add(userSnapshot.getKey());
+                }
+
+                followedUserIds.add(currentUser.getUid()); // Add current user ID
+
+                fetchPostsFromUsers(followedUserIds);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle any errors that occur while fetching data
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private void fetchPostsFromUsers(List<String> userIds) {
+        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference()
+                .child("posts");
 
         postsRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -114,7 +141,43 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Post post = postSnapshot.getValue(Post.class);
-                    if (post != null) {
+                    if (post != null && userIds.contains(post.getUserId())) {
+                        postList.add(post);
+                    }
+                }
+
+                Collections.sort(postList, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post post1, Post post2) {
+                        return Long.compare(post2.getTimestamp(), post1.getTimestamp());
+                    }
+                });
+
+                postAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle any errors that occur while fetching data
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+
+    private void fetchPostsFromFollowedUsers(List<String> followedUserIds) {
+        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference()
+                .child("posts");
+
+        postsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                postList.clear();
+
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Post post = postSnapshot.getValue(Post.class);
+                    if (post != null && followedUserIds.contains(post.getUserId())) {
                         postList.add(post);
                     }
                 }
