@@ -85,7 +85,7 @@ public class CommunityCommentsFragment extends Fragment {
 
                 // Set up RecyclerView for comments
                 commentList = new ArrayList<>();
-                commentAdapter = new CommunityCommentAdapter(commentList);
+                commentAdapter = new CommunityCommentAdapter(commentList, requireContext());
                 commentsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 commentsRecyclerView.setAdapter(commentAdapter);
 
