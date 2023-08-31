@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -94,8 +95,8 @@ public class AddFragment extends Fragment {
                 }
 
                 // Perform text analysis here
-                if (violatesDigitalCitizenshipRules(postText)) {
-                    Toast.makeText(getActivity(), "Your post violates our Community Guidelines", Toast.LENGTH_SHORT).show();
+                if (violatesRules(postText)) {
+                    showGuidelinesViolationDialog();
                     return;
                 }
 
@@ -230,7 +231,7 @@ public class AddFragment extends Fragment {
         });
     }
 
-    private boolean violatesDigitalCitizenshipRules(String text) {
+    private boolean violatesRules(String text) {
         // Define a list of keywords that violate rules
         String[] ruleKeywords = {"fuck","bitch","motherfucker","ass", "nigga",
                 "asshole","twat","cunt"};
@@ -246,5 +247,15 @@ public class AddFragment extends Fragment {
         }
 
         return false; // Text is acceptable
+    }
+
+    private void showGuidelinesViolationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Guidelines Violation");
+        builder.setMessage("Your post violates our Community Guidelines. We are committed to maintaining a respectful and inclusive environment. " +
+                "\n• Bullying\n• Harassment\n• Use of inappropriate language \nare not tolerated here. Please ensure that your posts are respectful and adhere to our guidelines. Thank you for helping us create a positive community.");
+        builder.setPositiveButton("OK", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
