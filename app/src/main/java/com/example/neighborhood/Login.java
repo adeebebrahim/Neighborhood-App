@@ -1,13 +1,17 @@
 package com.example.neighborhood;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -96,5 +100,69 @@ public class Login extends AppCompatActivity {
                         });
             }
         });
+    }
+
+    public void showForgotPasswordDialog(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Forgot Password");
+
+        // Set up the dialog's content view with an EditText for the user's email
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        input.setHint("Enter your email");
+        builder.setView(input);
+
+        builder.setPositiveButton("Send Reset Link", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String email = input.getText().toString().trim();
+                if (isValidEmail(email)) {
+                    // Here, you can add logic to send a password reset link to the provided email
+                    sendPasswordResetLink(email);
+                } else {
+                    Toast.makeText(Login.this, "Please enter a valid email address",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void sendPasswordResetLink(String email) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (isValidEmail(email)) {
+            auth.sendPasswordResetEmail(email)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(Login.this, "Password reset link sent to your email",
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(Login.this, "Failed to send reset link. Please check your email.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        } else {
+            Toast.makeText(Login.this, "Please enter a valid email address",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean isValidEmail(CharSequence email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private boolean isValidPassword(CharSequence password) {
+        return password.length() >= 6;
     }
 }
