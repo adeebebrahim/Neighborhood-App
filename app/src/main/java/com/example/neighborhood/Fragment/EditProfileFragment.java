@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -384,6 +385,16 @@ public class EditProfileFragment extends Fragment {
         String email = editTextEmail.getText().toString().trim();
         String mobile = editTextMobileno.getText().toString().trim();
 
+        if (!isValidEmail(email)) {
+            Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!isValidMobile(mobile)) {
+            Toast.makeText(requireContext(), "Invalid mobile number", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (currentUser != null) {
             String userId = currentUser.getUid();
             HashMap<String, Object> updates = new HashMap<>();
@@ -408,6 +419,15 @@ public class EditProfileFragment extends Fragment {
                     });
         }
     }
+
+    private boolean isValidEmail(CharSequence email) {
+        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private boolean isValidMobile(CharSequence mobile) {
+        return !TextUtils.isEmpty(mobile) && mobile.length() == 10;
+    }
+
 
     private void showDeleteAccountConfirmationDialog() {
         AlertDialog.Builder confirmDialogBuilder = new AlertDialog.Builder(requireContext());
