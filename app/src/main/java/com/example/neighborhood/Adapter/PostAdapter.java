@@ -3,7 +3,6 @@ package com.example.neighborhood.Adapter;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Fragment.PostCommentsFragment;
 import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
@@ -31,15 +33,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
-import com.google.android.material.button.MaterialButton; // Import MaterialButton
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
@@ -48,7 +45,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private List<Post> postList;
     private DatabaseReference usersRef;
     private AppCompatActivity context;
-    private FirebaseUser currentUser; // Add currentUser
+    private FirebaseUser currentUser;
     private UserProfileClickListener userProfileClickListener;
 
     public PostAdapter(List<Post> postList, AppCompatActivity context, UserProfileClickListener listener) {
@@ -72,13 +69,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        // Fetch user information
+
         usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    // Set user profile data
+
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(context)
@@ -98,19 +95,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle errors
+
             }
         });
 
-        // Set post data
+
         holder.postTextView.setText(post.getPostText());
 
-        // Set timestamp
+
         CharSequence timestampFormatted = DateUtils.getRelativeTimeSpanString(post.getTimestamp(),
                 System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
         holder.timestampTextView.setText(timestampFormatted);
 
-        // Set post image
+
         if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
             holder.postImageView.setVisibility(View.VISIBLE);
             Picasso.get().load(post.getImageUrl()).placeholder(R.drawable.ic_addimage).into(holder.postImageView);
@@ -122,35 +119,35 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             @Override
             public boolean onLongClick(View v) {
                 if (userId.equals(currentUser.getUid())) {
-                    // Show a confirmation dialog
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setMessage("Delete this post?");
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Delete the post and associated data
+
                             deletePost(post);
                         }
                     });
                     builder.setNegativeButton("No", null);
                     builder.show();
 
-                    return true; // Consume the click event
+                    return true;
                 } else {
-                    // Show a report confirmation dialog
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setMessage("Report this post?");
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Show a report reason dialog
+
                             showReportReasonDialog(post);
                         }
                     });
                     builder.setNegativeButton("No", null);
                     builder.show();
 
-                    return true; // Consume the click event
+                    return true;
                 }
             }
         });
@@ -163,25 +160,25 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Check if the user has already liked the post
+
                 if (post.getLikedByUsers().contains(currentUser.getUid())) {
-                    // Remove user's like
+
                     post.getLikedByUsers().remove(currentUser.getUid());
-                    holder.likeButton.setImageResource(R.drawable.ic_likeoutlined); // Set unliked icon
+                    holder.likeButton.setImageResource(R.drawable.ic_likeoutlined);
                 } else {
-                    // Add user's like
+
                     post.getLikedByUsers().add(currentUser.getUid());
-                    holder.likeButton.setImageResource(R.drawable.ic_like); // Set liked icon
+                    holder.likeButton.setImageResource(R.drawable.ic_like);
                 }
 
-                // Update the post's likedByUsers field in the database
+
                 DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts").child(post.getPostId());
                 postsRef.child("likedByUsers").setValue(post.getLikedByUsers());
             }
         });
 
 
-        // Set click listeners
+
         holder.commentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,7 +186,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             }
         });
 
-        // Set other click listeners
+
         holder.profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -212,19 +209,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         int numLikes = post.getLikedByUsers().size();
         holder.likeTextView.setText("Likes " + numLikes);
 
-        // Query the database to count the number of comments
+
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
         commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Get the number of comments
+
                 int numComments = (int) dataSnapshot.getChildrenCount();
                 holder.commentTextView.setText("Comments " + numComments);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle errors
+
             }
         });
     }
@@ -250,7 +247,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView postTextView;
         TextView timestampTextView;
         ImageView postImageView;
-        ImageView commentButton; // Use MaterialButton for comment button
+        ImageView commentButton;
         ImageView likeButton;
         TextView likeTextView;
         TextView commentTextView;
@@ -263,7 +260,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             postTextView = itemView.findViewById(R.id.post_text_view);
             timestampTextView = itemView.findViewById(R.id.timestamp_text_view);
             postImageView = itemView.findViewById(R.id.post_image_view);
-            commentButton = itemView.findViewById(R.id.comment_button); // Initialize comment button as MaterialButton
+            commentButton = itemView.findViewById(R.id.comment_button);
             likeButton = itemView.findViewById(R.id.like_button);
             likeTextView = itemView.findViewById(R.id.like_text_view);
             commentTextView = itemView.findViewById(R.id.comment_text_view);
@@ -271,15 +268,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     private void navigateToPostCommentsFragment(Post post) {
-        // Create a bundle to pass the selected post to the fragment
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("post", post); // Use "post" key instead of "selected_post"
 
-        // Create the fragment instance
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("post", post);
+
+
         PostCommentsFragment commentsFragment = new PostCommentsFragment();
         commentsFragment.setArguments(bundle);
 
-        // Navigate to the fragment
+
         context.getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, commentsFragment)
@@ -288,36 +285,36 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     private void deletePost(Post post) {
-        // Delete post from the postList and update the RecyclerView
+
         postList.remove(post);
         notifyDataSetChanged();
 
-        // Delete post data from the Firebase Realtime Database
+
         DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts");
         postsRef.child(post.getPostId()).removeValue();
 
-        // Delete post image from storage (if available)
+
         if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
             StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(post.getImageUrl());
             storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    // Image deleted successfully
+
                 }
             });
         }
 
-        // Delete comments associated with the post from the Firebase Realtime Database
+
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
         commentsRef.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                // Comments associated with the post deleted successfully
+
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                // Handle failure
+
             }
         });
     }
@@ -326,7 +323,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Report Post");
 
-        // Inflate a custom layout for the report reasons
+
         View reportReasonsView = LayoutInflater.from(context).inflate(R.layout.dialog_report_reasons, null);
 
         String[] reportReasons = {"Inappropriate content", "Spam", "Harassment", "Other"};
@@ -345,8 +342,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     String selectedReason = reportReasons[selectedPosition];
                     showReportConfirmationDialog(post, selectedReason);
                 } else {
-                    // No reason selected
-                    // You can show a message to the user if desired
+
+
                 }
             }
         });
@@ -366,7 +363,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Call a method to save the report to Firebase
+
                 saveReportToFirebase(post, reason);
             }
         });

@@ -7,7 +7,6 @@ import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -51,7 +50,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the item layout
+
         context = parent.getContext();
         View view = LayoutInflater.from(context).inflate(R.layout.item_event, parent, false);
         return new EventViewHolder(view);
@@ -61,14 +60,14 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = eventList.get(position);
 
-        // Fetch user information from Firebase based on userId
+
         String userId = event.getUserId();
         usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    // Load user profile picture using Glide
+
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(holder.itemView.getContext())
@@ -79,7 +78,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                     } else {
                         Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
-                    // Set user name and username
+
                     holder.nameTextView.setText(user.getName());
                     holder.usernameTextView.setText("@" + user.getUsername());
                 }
@@ -87,19 +86,19 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle errors if any
+
             }
         });
 
-        // Set event data such as title, date, time, and description
+
         holder.titleTextView.setText(event.getTitle());
         holder.dateTextView.setText("Date: " + event.getDate());
         holder.timeTextView.setText("Time: " + event.getTime());
         holder.descriptionTextView.setText(event.getDescription());
 
-        // Handle other event-related data if needed
 
-        // Handle "Add to Reminder" button click
+
+
         holder.addToReminderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,23 +110,23 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             @Override
             public boolean onLongClick(View v) {
                 if (event.getUserId().equals(getCurrentUserId())) {
-                    // Show a confirmation dialog
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
                     builder.setMessage("Delete this event?");
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Delete the event post
+
                             deleteEvent(event);
                         }
                     });
                     builder.setNegativeButton("No", null);
                     builder.show();
 
-                    return true; // Consume the click event
+                    return true;
                 } else {
-                    // Display an error message or take other action
-                    return true; // Consume the click event
+
+                    return true;
                 }
             }
         });
@@ -166,15 +165,15 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         }
     }
 
-    // Inside the addToCalendar() method of the EventAdapter class
+
 
     private void addToCalendar(Event event) {
-        // Get event details
+
         String eventTitle = event.getTitle();
         String eventDate = event.getDate();
         String eventTime = event.getTime();
 
-        // Parse eventDate and eventTime to obtain the event's start time in milliseconds
+
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
         try {
@@ -187,22 +186,22 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         }
         long startTimeInMillis = calendar.getTimeInMillis();
 
-        // Create an intent to add the event to the user's calendar
+
         Intent calendarIntent = new Intent(Intent.ACTION_INSERT)
                 .setData(CalendarContract.Events.CONTENT_URI)
                 .putExtra(CalendarContract.Events.TITLE, eventTitle)
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startTimeInMillis);
 
-        // Start the calendar activity
+
         context.startActivity(calendarIntent);
     }
 
     private void deleteEvent(Event event) {
-        // Remove the event from the eventList and update the RecyclerView
+
         eventList.remove(event);
         notifyDataSetChanged();
 
-        // Delete the event data from the Firebase Realtime Database
+
         DatabaseReference eventsRef = FirebaseDatabase.getInstance().getReference().child("Events").child(event.getEventId());
         eventsRef.removeValue();
     }

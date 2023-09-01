@@ -32,18 +32,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityCommentAdapter.CommunityCommentViewHolder> {
 
     private List<CommunityComment> commentList;
-    private Context context; // Add a Context member variable
+    private Context context;
 
     public CommunityCommentAdapter(List<CommunityComment> commentList, Context context) {
         this.commentList = commentList;
-        this.context = context; // Initialize the context
+        this.context = context;
     }
 
     @NonNull
@@ -58,14 +57,14 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
         CommunityComment comment = commentList.get(position);
         holder.commentTextView.setText(comment.getText());
 
-        // Retrieve user information for the comment
+
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(comment.getUserId());
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    // Set user information to the views
+
                     holder.nameTextView.setText(user.getName());
                     holder.usernameTextView.setText("@" + user.getUsername());
 
@@ -77,7 +76,7 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
                                 .placeholder(R.drawable.ic_profile)
                                 .into(holder.profileImageView);
                     } else {
-                        // Set a default placeholder image if the image URL is empty
+
                         Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                 }
@@ -85,7 +84,7 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle database error
+
             }
         });
 
@@ -93,23 +92,23 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
             @Override
             public boolean onLongClick(View v) {
                 if (comment.getUserId().equals(getCurrentUserId())) {
-                    // Show a confirmation dialog
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
                     builder.setMessage("Delete this comment?");
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Delete the comment
+
                             deleteCommunityComment(comment);
                         }
                     });
                     builder.setNegativeButton("No", null);
                     builder.show();
 
-                    return true; // Consume the click event
+                    return true;
                 } else {
                     showCommentReportReasonDialog(comment);
-                    return true; // Consume the click event
+                    return true;
                 }
             }
         });
@@ -136,11 +135,11 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
     }
 
     private void deleteCommunityComment(CommunityComment comment) {
-        // Remove the comment from the commentList and update the RecyclerView
+
         commentList.remove(comment);
         notifyDataSetChanged();
 
-        // Delete comment data from the Firebase Realtime Database
+
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("CommunityComments").child(comment.getPostId()).child(comment.getCommentId());
         commentsRef.removeValue();
     }
@@ -172,8 +171,8 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
                     String selectedReason = reportReasons[selectedPosition];
                     showCommentReportConfirmationDialog(comment, selectedReason);
                 } else {
-                    // No reason selected
-                    // You can show a message to the user if desired
+
+
                 }
             }
         });

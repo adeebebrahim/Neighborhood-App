@@ -61,22 +61,22 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-                // Handle child changed event if needed
+
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                // Handle child removed event if needed
+
             }
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-                // Handle child moved event if needed
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Handle database error if needed
+
             }
         };
 
@@ -104,7 +104,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     User senderUser = dataSnapshot.getValue(User.class);
                     if (senderUser != null && senderUser.getImage() != null && !senderUser.getImage().isEmpty()) {
-                        // Load and display the sender's profile image using Glide
+
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(context)
                                 .load(senderUser.getImage())
@@ -112,52 +112,52 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                                 .placeholder(R.drawable.ic_profile)
                                 .into(holder.profileImageView);
                     } else {
-                        // If profile image URL is empty, load a default image
+
                         Glide.with(context).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle errors if any
+
                 }
             });
 
-            // Customize the appearance based on the sender of the message
+
             if (senderUserId.equals(getCurrentUserId())) {
-                // This message was sent by the logged-in user
-                // You can customize the appearance accordingly, e.g., change the background color
+
+
             } else {
-                // This message was received from another user
-                // You can customize the appearance accordingly, e.g., change the background color
+
+
             }
         }
 
-        // Add a long click listener to the itemView
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (message.getSenderUserId().equals(getCurrentUserId())) {
-                    // Show a confirmation dialog for deleting the message
+
                     AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(context);
                     deleteBuilder.setMessage("Delete this message?");
                     deleteBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Delete the message
+
                             deleteMessage(message);
                         }
                     });
                     deleteBuilder.setNegativeButton("No", null);
                     deleteBuilder.show();
                 } else {
-                    // Show a report confirmation dialog
+
                     AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
                     reportBuilder.setMessage("Report this message?");
                     reportBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Show a report reason dialog
+
                             showMessageReportReasonDialog(message);
                         }
                     });
@@ -165,7 +165,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     reportBuilder.show();
                 }
 
-                return true; // Consume the click event
+                return true;
             }
         });
     }
@@ -178,12 +178,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
-        ImageView profileImageView; // Add this line
+        ImageView profileImageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.message_text_view);
-            profileImageView = itemView.findViewById(R.id.profile_image_view); // Initialize the ImageView
+            profileImageView = itemView.findViewById(R.id.profile_image_view);
         }
     }
 
@@ -201,7 +201,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                // Successfully deleted from the database
+
                                 messageList.remove(message);
                                 notifyDataSetChanged();
                             }
@@ -209,7 +209,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                // Handle deletion failure
+
                             }
                         });
             }
@@ -221,8 +221,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             String currentUserUid = senderUserId;
             String otherUserUid = recipientUserId;
 
-            // Create a consistent chat ID by concatenating the user IDs
-            // in a specific order (alphabetical)
+
+
             if (currentUserUid.compareTo(otherUserUid) < 0) {
                 return currentUserUid + "_" + otherUserUid;
             } else {
@@ -232,12 +232,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return null;
     }
 
-    // Add this method to show the report reason dialog
+
     private void showMessageReportReasonDialog(Message message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Report Message");
 
-        // Inflate a custom layout for the report reasons
+
         View reportReasonsView = LayoutInflater.from(context).inflate(R.layout.dialog_report_reasons, null);
 
         String[] reportReasons = {"Inappropriate content", "Spam", "Harassment", "Other"};
@@ -256,8 +256,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     String selectedReason = reportReasons[selectedPosition];
                     showMessageReportConfirmationDialog(message, selectedReason);
                 } else {
-                    // No reason selected
-                    // You can show a message to the user if desired
+
+
                 }
             }
         });
@@ -267,7 +267,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         dialog.show();
     }
 
-    // Add this method to show the report confirmation dialog
+
     private void showMessageReportConfirmationDialog(Message message, String reason) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Confirm Report");
@@ -276,7 +276,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Call a method to save the report to Firebase for messages
+
                 saveMessageReportToFirebase(message, reason);
             }
         });
@@ -285,7 +285,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         builder.show();
     }
 
-    // Inside the saveMessageReportToFirebase method
+
     private void saveMessageReportToFirebase(Message message, String reason) {
         DatabaseReference reportsRef = FirebaseDatabase.getInstance().getReference().child("MessageReports");
         String reportId = reportsRef.push().getKey();
@@ -297,13 +297,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            // Show a message to the user
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            // Show a message to the user
+
                         }
                     });
         }

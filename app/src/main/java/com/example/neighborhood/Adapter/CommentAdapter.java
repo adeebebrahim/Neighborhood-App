@@ -20,7 +20,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Comment;
-import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
 import com.example.neighborhood.Report;
 import com.example.neighborhood.User;
@@ -33,16 +32,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
     private List<Comment> commentList;
-    private Context context; // Add this field
+    private Context context;
 
-    public CommentAdapter(List<Comment> commentList, Context context) { // Modify the constructor
+    public CommentAdapter(List<Comment> commentList, Context context) {
         this.commentList = commentList;
         this.context = context;
     }
@@ -59,19 +57,18 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         Comment comment = commentList.get(position);
         holder.commentTextView.setText(comment.getText());
 
-        // Retrieve user information for the comment
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(comment.getUserId());
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    // Set user information to the views
+
                     holder.nameTextView.setText(user.getName());
                     holder.usernameTextView.setText("@" + user.getUsername());
 
                     if (!TextUtils.isEmpty(user.getImage())) {
-                        // Load the user profile image with circular cropping
+
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(holder.itemView.getContext())
                                 .load(user.getImage())
@@ -79,7 +76,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                                 .placeholder(R.drawable.ic_profile)
                                 .into(holder.profileImageView);
                     } else {
-                        // Load default profile image if the image URL is empty
+
                         Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                 }
@@ -87,35 +84,35 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle database error
+
             }
         });
 
-        // Add a long click listener to the itemView
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (comment.getUserId().equals(getCurrentUserId())) {
-                    // Show a confirmation dialog for deleting the comment
+
                     AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(context);
                     deleteBuilder.setMessage("Delete this comment?");
                     deleteBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Delete the comment
+
                             deleteComment(comment);
                         }
                     });
                     deleteBuilder.setNegativeButton("No", null);
                     deleteBuilder.show();
                 } else {
-                    // Show a report confirmation dialog
+
                     AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
                     reportBuilder.setMessage("Report this comment?");
                     reportBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Show a report reason dialog
+
                             showCommentReportReasonDialog(comment);
                         }
                     });
@@ -123,7 +120,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                     reportBuilder.show();
                 }
 
-                return true; // Consume the click event
+                return true;
             }
         });
     }
@@ -150,11 +147,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     private void deleteComment(Comment comment) {
-        // Remove the comment from the commentList and update the RecyclerView
+
         commentList.remove(comment);
         notifyDataSetChanged();
 
-        // Delete comment data from the Firebase Realtime Database
+
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(comment.getPostId()).child(comment.getCommentId());
         commentsRef.removeValue();
     }
@@ -168,7 +165,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Report Comment");
 
-        // Inflate a custom layout for the report reasons
+
         View reportReasonsView = LayoutInflater.from(context).inflate(R.layout.dialog_report_reasons, null);
 
         String[] reportReasons = {"Inappropriate content", "Spam", "Harassment", "Other"};
@@ -187,8 +184,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                     String selectedReason = reportReasons[selectedPosition];
                     showCommentReportConfirmationDialog(comment, selectedReason);
                 } else {
-                    // No reason selected
-                    // You can show a message to the user if desired
+
+
                 }
             }
         });
@@ -206,7 +203,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Call a method to save the report to Firebase for comments
+
                 saveCommentReportToFirebase(comment, reason);
             }
         });

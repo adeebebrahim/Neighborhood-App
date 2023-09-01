@@ -1,6 +1,6 @@
 package com.example.neighborhood.Adapter;
 
-// SlidePagerAdapter.java
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -9,7 +9,7 @@ import com.example.neighborhood.Fragment.SlideFragment;
 
 public class SlidePagerAdapter extends FragmentPagerAdapter {
 
-    private static final int NUM_PAGES = 3; // Number of onboarding slides
+    private static final int NUM_PAGES = 3;
 
     public SlidePagerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);

@@ -7,12 +7,12 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,6 +28,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
@@ -138,17 +139,19 @@ public class Register extends AppCompatActivity {
 
                 try {
                     validateField(name, "Please enter name");
+                    validateField(username, "Please enter username");
                     validateField(mobileNo, "Please enter mobile number");
                     validateField(gender, "Please select gender");
                     validateField(dateOfBirth, "Please select date of birth");
                     validateField(email, "Please enter email");
                     validateField(password, "Please enter password");
                     validateField(confirmPassword, "Please confirm password");
+                    validatePasswordMinLength(password);
                     validatePasswordMatch(password, confirmPassword);
                     validateDateOfBirthFormat(dateOfBirth);
                     validateEmailFormat(email);
                     validateMobileNumberFormat(mobileNo);
-                    checkUniqueMobileNumber(mobileNo);
+//                    checkUniquenessAndRegister();
 
                 } catch (Exception e) {
                     progressBar.setVisibility(View.GONE);
@@ -156,11 +159,76 @@ public class Register extends AppCompatActivity {
                     return;
                 }
 
-                // Check unique email only if mobile number check is successful
-                checkUniqueEmail(email);
             }
         });
     }
+
+//    private void checkUniquenessAndRegister() {
+//        DatabaseReference usernamesRef = database.getReference("usernames");
+//        DatabaseReference mobileNumbersRef = database.getReference("mobileNumbers");
+//        DatabaseReference emailsRef = database.getReference("emails");
+//
+//        final String inputUsername = editTextUsername.getText().toString().trim();
+//        final String inputMobileNo = editTextMobileNo.getText().toString().trim();
+//        final String inputEmail = editTextEmail.getText().toString().trim();
+//
+//        // Sanitize the email address to be used as a Firebase Database path
+//        String sanitizedEmail = inputEmail.replace('.', ',');
+//
+//        Log.d("UniqueCheck", "Checking username uniqueness: " + inputUsername);
+//        usernamesRef.child(inputUsername).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                Log.d("UniqueCheck", "Username exists: " + dataSnapshot.exists());
+//                if (dataSnapshot.exists()) {
+//                    progressBar.setVisibility(View.GONE);
+//                    Toast.makeText(Register.this, "Username is already taken", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    mobileNumbersRef.child(inputMobileNo).addListenerForSingleValueEvent(new ValueEventListener() {
+//                        @Override
+//                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                            if (dataSnapshot.exists()) {
+//                                progressBar.setVisibility(View.GONE);
+//                                Toast.makeText(Register.this, "Mobile number is already registered", Toast.LENGTH_SHORT).show();
+//                            } else {
+//                                emailsRef.child(sanitizedEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                    @Override
+//                                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                                        if (dataSnapshot.exists()) {
+//                                            progressBar.setVisibility(View.GONE);
+//                                            Toast.makeText(Register.this, "Email is already registered", Toast.LENGTH_SHORT).show();
+//                                        } else {
+//                                            // All inputs are unique, proceed with registration
+//                                            createUserWithEmailAndPassword();
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public void onCancelled(DatabaseError databaseError) {
+//                                        progressBar.setVisibility(View.GONE);
+//                                        Toast.makeText(Register.this, "Error checking email uniqueness", Toast.LENGTH_SHORT).show();
+//                                    }
+//                                });
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(DatabaseError databaseError) {
+//                            progressBar.setVisibility(View.GONE);
+//                            Toast.makeText(Register.this, "Error checking mobile number uniqueness", Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                progressBar.setVisibility(View.GONE);
+//                Toast.makeText(Register.this, "Error checking username uniqueness", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
+
 
     private void validateField(String value, String errorMessage) throws Exception {
         if (TextUtils.isEmpty(value)) {
@@ -198,25 +266,13 @@ public class Register extends AppCompatActivity {
 
     private void validateMobileNumberFormat(String mobileNumber) throws Exception {
         if (mobileNumber.length() != 10) {
-            throw new Exception("Invalid mobile number");
+            throw new Exception("Invalid mobile number. Mobile no. should be 10 digit");
         }
     }
 
-    private void checkUniqueEmail(final String email) {
-        if (registeredEmails.containsKey(email)) {
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(Register.this, "Email already exists", Toast.LENGTH_SHORT).show();
-        } else {
-            createUserWithEmailAndPassword();
-        }
-    }
-
-    private void checkUniqueMobileNumber(final String mobileNumber) {
-        if (registeredMobileNumbers.containsKey(mobileNumber)) {
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(Register.this, "Mobile number already exists", Toast.LENGTH_SHORT).show();
-        } else {
-            registeredMobileNumbers.put(mobileNumber, true);
+    private void validatePasswordMinLength(String password) throws Exception {
+        if (password.length() < 6) {
+            throw new Exception("Password should be at least 6 characters long");
         }
     }
 
@@ -282,4 +338,5 @@ public class Register extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         editTextDateOfBirth.setText(sdf.format(myCalendar.getTime()));
     }
+
 }
