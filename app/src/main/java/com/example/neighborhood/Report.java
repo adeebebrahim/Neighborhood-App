@@ -12,7 +12,6 @@ public class Report {
 
     }
 
-
     public Report(String reportId, String userId, String postId, String reason, long timestamp) {
         this.reportId = reportId;
         this.userId = userId;
@@ -21,7 +20,6 @@ public class Report {
         this.timestamp = timestamp;
         this.commentId = null;
     }
-
 
     public Report(String reportId, String userId, String postId, String commentId, String reason, long timestamp) {
         this.reportId = reportId;

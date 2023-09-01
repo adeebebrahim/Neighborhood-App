@@ -1,7 +1,5 @@
 package com.example.neighborhood.Fragment;
 
-
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +67,6 @@ public class SlideFragment extends Fragment {
             final Button finishButton = view.findViewById(R.id.finishButton);
             finishButton.setVisibility(View.VISIBLE);
 
-
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT
@@ -79,7 +76,6 @@ public class SlideFragment extends Fragment {
             int margin = (int) getResources().getDimension(R.dimen.button_margin);
             layoutParams.setMargins(0, 0, margin, margin);
             finishButton.setLayoutParams(layoutParams);
-
             finishButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -90,7 +86,6 @@ public class SlideFragment extends Fragment {
                 }
             });
         }
-
         return view;
     }
 }

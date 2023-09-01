@@ -60,14 +60,12 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = eventList.get(position);
 
-
         String userId = event.getUserId();
         usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(holder.itemView.getContext())
@@ -78,7 +76,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                     } else {
                         Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
-
                     holder.nameTextView.setText(user.getName());
                     holder.usernameTextView.setText("@" + user.getUsername());
                 }
@@ -90,15 +87,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             }
         });
 
-
         holder.titleTextView.setText(event.getTitle());
         holder.dateTextView.setText("Date: " + event.getDate());
         holder.timeTextView.setText("Time: " + event.getTime());
         holder.descriptionTextView.setText(event.getDescription());
-
-
-
-
         holder.addToReminderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,7 +102,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             @Override
             public boolean onLongClick(View v) {
                 if (event.getUserId().equals(getCurrentUserId())) {
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
                     builder.setMessage("Delete this event?");
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -125,7 +116,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
                     return true;
                 } else {
-
                     return true;
                 }
             }
@@ -165,14 +155,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         }
     }
 
-
-
     private void addToCalendar(Event event) {
-
         String eventTitle = event.getTitle();
         String eventDate = event.getDate();
         String eventTime = event.getTime();
-
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
@@ -185,14 +171,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             e.printStackTrace();
         }
         long startTimeInMillis = calendar.getTimeInMillis();
-
-
         Intent calendarIntent = new Intent(Intent.ACTION_INSERT)
                 .setData(CalendarContract.Events.CONTENT_URI)
                 .putExtra(CalendarContract.Events.TITLE, eventTitle)
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startTimeInMillis);
-
-
         context.startActivity(calendarIntent);
     }
 
@@ -200,7 +182,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
         eventList.remove(event);
         notifyDataSetChanged();
-
 
         DatabaseReference eventsRef = FirebaseDatabase.getInstance().getReference().child("Events").child(event.getEventId());
         eventsRef.removeValue();

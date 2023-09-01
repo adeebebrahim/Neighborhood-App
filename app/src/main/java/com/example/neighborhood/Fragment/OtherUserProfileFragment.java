@@ -67,26 +67,20 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         currentUserId = currentUser != null ? currentUser.getUid() : null;
 
-
-
         Bundle bundle = getArguments();
         if (bundle != null) {
             otherUserId = bundle.getString("userId");
             if (otherUserId != null) {
-
                 fetchOtherUserInfo();
             }
         }
-
 
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         postList = new ArrayList<>();
         postAdapter = new PostAdapter(postList, (AppCompatActivity) getActivity(), this);
         postRecyclerView.setAdapter(postAdapter);
 
-
         loadOtherUserPosts();
-
 
         ImageView backButton = rootView.findViewById(R.id.btn_back);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -96,7 +90,6 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
                 getParentFragmentManager().popBackStack();
             }
         });
-
         return rootView;
     }
 
@@ -107,14 +100,11 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User otherUser = dataSnapshot.getValue(User.class);
                 if (otherUser != null) {
-
                     nameTextView.setText(otherUser.getName());
                     usernameTextView.setText("@" + otherUser.getUsername());
                     bioTextView.setText(otherUser.getBio());
                     followersTextView.setText("Followers: " + otherUser.getFollowerCount());
                     followingTextView.setText("Following: " + otherUser.getFollowingCount());
-
-
                     if (otherUser.getImage() != null && !otherUser.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(requireContext())
@@ -123,17 +113,13 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
                                 .error(R.drawable.ic_profile)
                                 .into(profileImageView);
                     } else {
-
                         Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                     }
-
 
                     boolean isFollowing = false;
                     if (currentUserId != null && otherUser.getFollowers() != null) {
                         isFollowing = otherUser.getFollowers().containsKey(currentUserId);
                     }
-
-
                     updateFollowButton(isFollowing);
                 }
             }
@@ -154,10 +140,8 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
             @Override
             public void onClick(View v) {
                 if (isFollowing) {
-
                     unfollowUser();
                 } else {
-
                     followUser();
                 }
             }
@@ -167,36 +151,20 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
     private void followUser() {
         DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
         DatabaseReference otherUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(otherUserId);
-
-
         currentUserRef.child("following").child(otherUserId).setValue(true);
-
-
         otherUserRef.child("followers").child(currentUserId).setValue(true);
-
-
         otherUserRef.child("followerCount").setValue(ServerValue.increment(1));
         currentUserRef.child("followingCount").setValue(ServerValue.increment(1));
-
-
         updateFollowButton(true);
     }
 
     private void unfollowUser() {
         DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
         DatabaseReference otherUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(otherUserId);
-
-
         currentUserRef.child("following").child(otherUserId).removeValue();
-
-
         otherUserRef.child("followers").child(currentUserId).removeValue();
-
-
         otherUserRef.child("followerCount").setValue(ServerValue.increment(-1));
         currentUserRef.child("followingCount").setValue(ServerValue.increment(-1));
-
-
         updateFollowButton(false);
     }
 
@@ -206,26 +174,19 @@ public class OtherUserProfileFragment extends Fragment implements PostAdapter.Us
         postsRef.orderByChild("userId").equalTo(otherUserId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 postList.clear();
-
-
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Post post = postSnapshot.getValue(Post.class);
                     if (post != null) {
                         postList.add(post);
                     }
                 }
-
-
                 Collections.sort(postList, new Comparator<Post>() {
                     @Override
                     public int compare(Post post1, Post post2) {
                         return Long.compare(post2.getTimestamp(), post1.getTimestamp());
                     }
                 });
-
-
                 postAdapter.notifyDataSetChanged();
             }
 

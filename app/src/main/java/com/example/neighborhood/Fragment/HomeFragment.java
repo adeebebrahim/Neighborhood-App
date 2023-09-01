@@ -65,8 +65,6 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
         searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 getParentFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new SearchFragment())
                         .addToBackStack(null)
@@ -77,8 +75,6 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
         messageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 getParentFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new MessageFragment())
                         .addToBackStack(null)
@@ -90,8 +86,6 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-
                 fetchPostsFromFirebase();
             }
         });
@@ -111,15 +105,12 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     followedUserIds.add(userSnapshot.getKey());
                 }
-
                 followedUserIds.add(currentUser.getUid());
-
                 fetchPostsFromUsers(followedUserIds);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -147,14 +138,12 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
                         return Long.compare(post2.getTimestamp(), post1.getTimestamp());
                     }
                 });
-
                 postAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -183,14 +172,12 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
                         return Long.compare(post2.getTimestamp(), post1.getTimestamp());
                     }
                 });
-
                 postAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -203,13 +190,11 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
 
     public void navigateToUserProfile(String userId) {
         if (currentUser != null && userId.equals(currentUser.getUid())) {
-
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new ProfileFragment())
                     .addToBackStack(null)
                     .commit();
         } else {
-
             OtherUserProfileFragment otherUserProfileFragment = new OtherUserProfileFragment();
             Bundle args = new Bundle();
             args.putString("userId", userId);

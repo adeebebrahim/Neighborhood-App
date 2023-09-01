@@ -63,12 +63,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-
                     holder.nameTextView.setText(user.getName());
                     holder.usernameTextView.setText("@" + user.getUsername());
-
                     if (!TextUtils.isEmpty(user.getImage())) {
-
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(holder.itemView.getContext())
                                 .load(user.getImage())
@@ -76,7 +73,6 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                                 .placeholder(R.drawable.ic_profile)
                                 .into(holder.profileImageView);
                     } else {
-
                         Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                 }
@@ -88,38 +84,32 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             }
         });
 
-
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (comment.getUserId().equals(getCurrentUserId())) {
-
                     AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(context);
                     deleteBuilder.setMessage("Delete this comment?");
                     deleteBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             deleteComment(comment);
                         }
                     });
                     deleteBuilder.setNegativeButton("No", null);
                     deleteBuilder.show();
                 } else {
-
                     AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
                     reportBuilder.setMessage("Report this comment?");
                     reportBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             showCommentReportReasonDialog(comment);
                         }
                     });
                     reportBuilder.setNegativeButton("No", null);
                     reportBuilder.show();
                 }
-
                 return true;
             }
         });
@@ -147,10 +137,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     private void deleteComment(Comment comment) {
-
         commentList.remove(comment);
         notifyDataSetChanged();
-
 
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(comment.getPostId()).child(comment.getCommentId());
         commentsRef.removeValue();
@@ -164,10 +152,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     private void showCommentReportReasonDialog(Comment comment) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Report Comment");
-
-
         View reportReasonsView = LayoutInflater.from(context).inflate(R.layout.dialog_report_reasons, null);
-
         String[] reportReasons = {"Inappropriate content", "Spam", "Harassment", "Other"};
 
         ListView reasonsListView = reportReasonsView.findViewById(R.id.reasons_list_view);
@@ -185,11 +170,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                     showCommentReportConfirmationDialog(comment, selectedReason);
                 } else {
 
-
                 }
             }
         });
-
         builder.setNegativeButton("Cancel", null);
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -203,11 +186,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 saveCommentReportToFirebase(comment, reason);
             }
         });
-
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }

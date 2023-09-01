@@ -45,11 +45,8 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_search, container, false);
 
-
         searchBar = rootView.findViewById(R.id.search_bar);
         Button cancelButton = rootView.findViewById(R.id.cancel_button);
-
-
         userRecyclerView = rootView.findViewById(R.id.user_list);
         userRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         allUsers = new ArrayList<>();
@@ -67,13 +64,11 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
                     allUsers.add(user);
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,35 +79,26 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
             }
         });
 
-
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String query = charSequence.toString().trim();
-
                 if (query.isEmpty()) {
-
                     filteredUsers.clear();
                 } else {
-
                     filterUsers(query);
                 }
-
                 userAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String query = charSequence.toString().trim();
-
                 if (query.isEmpty()) {
-
                     filteredUsers.clear();
                 } else {
-
                     filterUsers(query);
                 }
-
                 userAdapter.notifyDataSetChanged();
             }
 
@@ -121,7 +107,6 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
 
             }
         });
-
         return rootView;
     }
 

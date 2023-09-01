@@ -62,7 +62,6 @@ public class PostCommentsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_post_comments, container, false);
 
-
         profileImageView = view.findViewById(R.id.profile_image_view);
         nameTextView = view.findViewById(R.id.name_text_view);
         usernameTextView = view.findViewById(R.id.username_text_view);
@@ -77,17 +76,12 @@ public class PostCommentsFragment extends Fragment {
         likeTextView = view.findViewById(R.id.like_text_view);
         commentTextView = view.findViewById(R.id.comment_text_view);
 
-
         Bundle arguments = getArguments();
         if (arguments != null) {
             post = arguments.getParcelable("post");
             if (post != null) {
-
                 retrieveUserFromDatabase(post.getUserId());
-
-
                 postTextView.setText(post.getPostText());
-
 
                 if (!TextUtils.isEmpty(post.getImageUrl())) {
                     postImageView.setVisibility(View.VISIBLE);
@@ -96,38 +90,25 @@ public class PostCommentsFragment extends Fragment {
                     postImageView.setVisibility(View.GONE);
                 }
 
-
                 commentList = new ArrayList<>();
                 commentAdapter = new CommentAdapter(commentList, requireContext());
                 commentsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 commentsRecyclerView.setAdapter(commentAdapter);
 
-
                 retrieveCommentsForPost(post.getPostId());
             }
         }
-
 
         submitCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String commentText = commentEditText.getText().toString().trim();
                 if (!commentText.isEmpty()) {
-
                     String commentId = FirebaseDatabase.getInstance().getReference().push().getKey();
-
-
                     String userId = getCurrentUserId();
-
-
                     String postId = post.getPostId();
-
-
                     long timestamp = System.currentTimeMillis();
-
-
                     Comment newComment = new Comment(userId, postId, commentId, timestamp, commentText);
-
 
                     DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments");
                     commentsRef.child(postId).child(commentId).setValue(newComment)
@@ -135,7 +116,6 @@ public class PostCommentsFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-
                                         commentEditText.setText("");
                                     } else {
 
@@ -150,7 +130,6 @@ public class PostCommentsFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 getParentFragmentManager().popBackStack();
             }
         });
@@ -166,33 +145,23 @@ public class PostCommentsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts").child(post.getPostId());
-
-
                 if (post.getLikedByUsers().contains(getCurrentUserId())) {
-
                     post.getLikedByUsers().remove(getCurrentUserId());
                     likeButton.setImageResource(R.drawable.ic_likeoutlined);
                 } else {
-
                     post.getLikedByUsers().add(getCurrentUserId());
                     likeButton.setImageResource(R.drawable.ic_like);
                 }
-
-
                 postsRef.child("likedByUsers").setValue(post.getLikedByUsers());
             }
         });
 
-
         int numLikes = post.getLikedByUsers().size();
         likeTextView.setText("Likes " + numLikes);
-
-
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
         commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 int numComments = (int) dataSnapshot.getChildrenCount();
                 commentTextView.setText("Comments " + numComments);
             }
@@ -202,8 +171,6 @@ public class PostCommentsFragment extends Fragment {
 
             }
         });
-
-
         return view;
     }
 
@@ -214,12 +181,9 @@ public class PostCommentsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-
                     nameTextView.setText(user.getName());
                     usernameTextView.setText("@" + user.getUsername());
-
                     if (!TextUtils.isEmpty(user.getImage())) {
-
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(requireContext())
                                 .load(user.getImage())
@@ -227,7 +191,6 @@ public class PostCommentsFragment extends Fragment {
                                 .placeholder(R.drawable.ic_profile)
                                 .into(profileImageView);
                     } else {
-
                         Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                     }
                 }

@@ -36,7 +36,6 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
 
     private List<CommunityPost> communityPosts;
     private DatabaseReference usersRef;
-
     private FragmentActivity context;
 
     public CommunityAdapter(List<CommunityPost> communityPosts, FragmentActivity context) {
@@ -56,14 +55,12 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
     public void onBindViewHolder(@NonNull CommunityViewHolder holder, int position) {
         CommunityPost post = communityPosts.get(position);
 
-
         String userId = post.getUserId();
         usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(holder.itemView.getContext())
@@ -74,7 +71,6 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
                     } else {
                         Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
-
                     holder.nameTextView.setText(user.getName());
                     holder.usernameTextView.setText("@" + user.getUsername());
                 }
@@ -93,19 +89,13 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
                 System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
         holder.timestampTextView.setText(timestampFormatted);
 
-
         holder.commentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("post", post);
-
-
                 CommunityCommentsFragment commentsFragment = new CommunityCommentsFragment();
                 commentsFragment.setArguments(bundle);
-
-
                 context.getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container, commentsFragment)
@@ -118,7 +108,6 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 int numComments = (int) dataSnapshot.getChildrenCount();
                 holder.commentTextView.setText("Comments " + numComments);
             }
@@ -140,16 +129,13 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             deleteCommunityPostAndComments(post);
                         }
                     });
                     builder.setNegativeButton("No", null);
                     builder.show();
-
                     return true;
                 } else {
-
                     return true;
                 }
             }
@@ -190,14 +176,11 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
     }
 
     private void navigateToCommunityCommentsFragment(CommunityPost communityPost) {
-
         Bundle bundle = new Bundle();
         bundle.putParcelable("communitypost", communityPost);
 
-
         PostCommentsFragment commentsFragment = new PostCommentsFragment();
         commentsFragment.setArguments(bundle);
-
 
         context.getSupportFragmentManager()
                 .beginTransaction()
@@ -207,14 +190,11 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
     }
 
     private void deleteCommunityPostAndComments(CommunityPost post) {
-
         communityPosts.remove(post);
         notifyDataSetChanged();
 
-
         DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("CommunityPosts").child(post.getTopicId());
         postsRef.removeValue();
-
 
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("CommunityComments").child(post.getTopicId());
         commentsRef.removeValue();
@@ -224,5 +204,4 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         return currentUser != null ? currentUser.getUid() : null;
     }
-
 }

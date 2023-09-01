@@ -81,14 +81,12 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-
             }
         });
 
         btnDeleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
 
             }
         });
@@ -103,7 +101,6 @@ public class ProfileActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(ProfileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             REQUEST_PERMISSION);
                 } else {
-
                     openGallery();
                 }
             }
@@ -121,10 +118,8 @@ public class ProfileActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                 openGallery();
             } else {
-
                 Toast.makeText(this, "Gallery permission denied", Toast.LENGTH_SHORT).show();
             }
         }
@@ -138,18 +133,13 @@ public class ProfileActivity extends AppCompatActivity {
             Uri imageUri = data.getData();
             if (imageUri != null) {
                 try {
-
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
                     byte[] imageData = baos.toByteArray();
-
-
                     final StorageReference imageRef = mStorageRef.child("profile_images").child(mUser.getUid() + ".jpg");
                     UploadTask uploadTask = imageRef.putBytes(imageData);
-
 
                     uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
@@ -157,23 +147,17 @@ public class ProfileActivity extends AppCompatActivity {
                             if (!task.isSuccessful()) {
                                 throw task.getException();
                             }
-
                             return imageRef.getDownloadUrl();
                         }
                     }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                         @Override
                         public void onComplete(@NonNull Task<Uri> task) {
                             if (task.isSuccessful()) {
-
                                 Uri downloadUri = task.getResult();
                                 if (downloadUri != null) {
-
                                     String imageUrl = downloadUri.toString();
                                     mDatabaseRef.child("users").child(mUser.getUid()).child("profileImage").setValue(imageUrl);
-
-
                                     profileImage.setImageBitmap(bitmap);
-
                                     Toast.makeText(ProfileActivity.this, "Profile picture updated", Toast.LENGTH_SHORT).show();
                                 }
                             } else {

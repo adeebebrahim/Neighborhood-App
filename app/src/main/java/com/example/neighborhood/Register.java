@@ -260,7 +260,6 @@ public class Register extends AppCompatActivity {
                 });
     }
 
-
     private void updateDateOfBirthLabel() {
         String myFormat = "dd/MM/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);

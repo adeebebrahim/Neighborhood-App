@@ -17,7 +17,6 @@ public class Post implements Parcelable {
     private List<String> likedByUsers;
 
     public Post() {
-
         likedByUsers = new ArrayList<>();
     }
 
@@ -95,7 +94,6 @@ public class Post implements Parcelable {
     public void setLikedByUsers(List<String> likedByUsers) {
         this.likedByUsers = likedByUsers;
     }
-
 
     protected Post(Parcel in) {
         userName = in.readString();

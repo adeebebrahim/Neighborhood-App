@@ -79,7 +79,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
             }
         };
-
         messagesRef.addChildEventListener(childEventListener);
     }
 
@@ -93,9 +92,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Message message = messageList.get(position);
-
         holder.messageTextView.setText(message.getMessageText());
-
         String senderUserId = message.getSenderUserId();
         if (senderUserId != null) {
             DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(senderUserId);
@@ -104,7 +101,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     User senderUser = dataSnapshot.getValue(User.class);
                     if (senderUser != null && senderUser.getImage() != null && !senderUser.getImage().isEmpty()) {
-
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(context)
                                 .load(senderUser.getImage())
@@ -112,7 +108,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                                 .placeholder(R.drawable.ic_profile)
                                 .into(holder.profileImageView);
                     } else {
-
                         Glide.with(context).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                 }
@@ -126,13 +121,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
             if (senderUserId.equals(getCurrentUserId())) {
 
-
             } else {
-
 
             }
         }
-
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -144,32 +136,27 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     deleteBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             deleteMessage(message);
                         }
                     });
                     deleteBuilder.setNegativeButton("No", null);
                     deleteBuilder.show();
                 } else {
-
                     AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
                     reportBuilder.setMessage("Report this message?");
                     reportBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             showMessageReportReasonDialog(message);
                         }
                     });
                     reportBuilder.setNegativeButton("No", null);
                     reportBuilder.show();
                 }
-
                 return true;
             }
         });
     }
-
 
     @Override
     public int getItemCount() {
@@ -194,14 +181,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         if (messageId != null && senderUserId != null && recipientUserId != null) {
             String chatId = generateChatId(senderUserId, recipientUserId);
-
             if (chatId != null) {
                 DatabaseReference chatRef = messagesRef.child(chatId).child(messageId);
                 chatRef.removeValue()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-
                                 messageList.remove(message);
                                 notifyDataSetChanged();
                             }

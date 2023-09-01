@@ -55,7 +55,6 @@ public class CommunityCommentsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_community_comments, container, false);
 
-
         profileImageView = view.findViewById(R.id.profile_image_view);
         nameTextView = view.findViewById(R.id.name_text_view);
         usernameTextView = view.findViewById(R.id.username_text_view);
@@ -66,50 +65,34 @@ public class CommunityCommentsFragment extends Fragment {
         commentEditText = view.findViewById(R.id.comment_edit_text);
         submitCommentButton = view.findViewById(R.id.submit_comment_button);
 
-
         Bundle arguments = getArguments();
         if (arguments != null) {
             communityPost = arguments.getParcelable("post");
             if (communityPost != null) {
 
                 retrieveUserFromDatabase(communityPost.getUserId());
-
-
                 topicTextView.setText(communityPost.getTopic());
                 postTextView.setText(communityPost.getDescription());
-
 
                 commentList = new ArrayList<>();
                 commentAdapter = new CommunityCommentAdapter(commentList, requireContext());
                 commentsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 commentsRecyclerView.setAdapter(commentAdapter);
 
-
                 retrieveCommentsForPost(communityPost.getTopicId());
             }
         }
-
 
         submitCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String text = commentEditText.getText().toString().trim();
                 if (!text.isEmpty()) {
-
                     String commentId = FirebaseDatabase.getInstance().getReference().push().getKey();
-
-
                     String userId = getCurrentUserId();
-
-
                     String topicId = communityPost.getTopicId();
-
-
                     long timestamp = System.currentTimeMillis();
-
-
                     CommunityComment newComment = new CommunityComment(userId, topicId, commentId, timestamp, text);
-
 
                     DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("CommunityComments");
                     commentsRef.child(topicId).child(commentId).setValue(newComment)
@@ -117,14 +100,12 @@ public class CommunityCommentsFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-
                                         commentEditText.setText("");
                                     } else {
 
                                     }
                                 }
                             });
-
                 }
             }
         });
@@ -133,11 +114,9 @@ public class CommunityCommentsFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 getParentFragmentManager().popBackStack();
             }
         });
-
         return view;
     }
 
@@ -148,7 +127,6 @@ public class CommunityCommentsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-
                     if (!TextUtils.isEmpty(user.getImage())) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(requireContext())

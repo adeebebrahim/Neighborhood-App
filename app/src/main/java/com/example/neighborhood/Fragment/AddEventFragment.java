@@ -49,7 +49,6 @@ public class AddEventFragment extends Fragment {
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     private String userId;
-    private String userProfileImageUrl;
 
     public AddEventFragment() {
 
@@ -65,16 +64,13 @@ public class AddEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
         eventsRef = FirebaseDatabase.getInstance().getReference().child("Events");
-
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             userId = currentUser.getUid();
             loadUserProfileImage();
         }
-
 
         eventTitleEditText = view.findViewById(R.id.event_title_edit_text);
         eventDateEditText = view.findViewById(R.id.event_date_edit_text);
@@ -83,8 +79,6 @@ public class AddEventFragment extends Fragment {
         Button postButton = view.findViewById(R.id.post_button);
         profileImageView = view.findViewById(R.id.profile_picture);
         btnCancel = view.findViewById(R.id.btn_cancel);
-
-
         eventDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,7 +141,6 @@ public class AddEventFragment extends Fragment {
     }
 
     private void showDatePicker() {
-
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 requireContext(),
                 new DatePickerDialog.OnDateSetListener() {
@@ -167,7 +160,6 @@ public class AddEventFragment extends Fragment {
     }
 
     private void showTimePicker() {
-
         TimePickerDialog timePickerDialog = new TimePickerDialog(
                 requireContext(),
                 new TimePickerDialog.OnTimeSetListener() {
@@ -186,43 +178,31 @@ public class AddEventFragment extends Fragment {
     }
 
     private void postEvent() {
-
         String eventTitle = eventTitleEditText.getText().toString();
         String eventDate = eventDateEditText.getText().toString();
         String eventTime = eventTimeEditText.getText().toString();
         String eventDescription = eventDescriptionEditText.getText().toString();
 
-
         if (!eventTitle.isEmpty() && !eventDate.isEmpty() && !eventTime.isEmpty() && !eventDescription.isEmpty()) {
-
             String eventId = eventsRef.push().getKey();
             long timestamp = System.currentTimeMillis();
-
-
             Event newEvent = new Event(eventId, eventTitle, eventDate, eventTime, eventDescription, userId, timestamp);
-
 
             eventsRef.child(eventId).setValue(newEvent)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-
                             eventTitleEditText.getText().clear();
                             eventDateEditText.getText().clear();
                             eventTimeEditText.getText().clear();
                             eventDescriptionEditText.getText().clear();
-
-
                             getParentFragmentManager().popBackStack();
-
-
                             Log.d("AddEventFragment", "Event posted successfully");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-
                             Log.e("AddEventFragment", "Failed to post event: " + e.getMessage());
                         }
                     });

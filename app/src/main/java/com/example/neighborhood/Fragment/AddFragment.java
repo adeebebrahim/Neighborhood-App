@@ -94,7 +94,6 @@ public class AddFragment extends Fragment {
                     return;
                 }
 
-
                 if (violatesRules(postText)) {
                     showGuidelinesViolationDialog();
                     return;
@@ -104,12 +103,9 @@ public class AddFragment extends Fragment {
                 progressDialog.setCancelable(false);
                 progressDialog.show();
 
-
                 if (imageUri != null) {
-
                     uploadImageAndSavePost(postText);
                 } else {
-
                     savePostToFirebase(postText, null);
                 }
             }
@@ -123,7 +119,6 @@ public class AddFragment extends Fragment {
         });
 
         loadUserProfileImage();
-
         return rootView;
     }
 
@@ -232,20 +227,14 @@ public class AddFragment extends Fragment {
     }
 
     private boolean violatesRules(String text) {
-
         String[] ruleKeywords = {"fuck","bitch","motherfucker","ass", "nigga",
                 "asshole","twat","cunt"};
-
-
         text = text.toLowerCase();
-
-
         for (String keyword : ruleKeywords) {
             if (text.contains(keyword)) {
                 return true;
             }
         }
-
         return false;
     }
 

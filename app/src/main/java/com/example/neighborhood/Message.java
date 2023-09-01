@@ -6,7 +6,6 @@ public class Message {
     private String senderUserId;
     private String recipientUserId;
 
-
     public Message() {
     }
 

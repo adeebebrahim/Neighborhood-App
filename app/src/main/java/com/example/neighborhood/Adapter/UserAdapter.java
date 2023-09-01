@@ -30,7 +30,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         this.userProfileClickListener = userProfileClickListener;
     }
 
-
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -65,7 +64,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 }
             }
         });
-
     }
 
     @Override

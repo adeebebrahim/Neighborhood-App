@@ -50,11 +50,8 @@ public class MessageFragment extends Fragment implements MessageUserAdapter.OnUs
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 allUsersList.clear();
-
                 String loggedInUserId = getCurrentUserId();
-
                 Log.d("User Debug", "User ID: " + getCurrentUserId());
-
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
                     if (user != null && user.getUserId() != null && !user.getUserId().equals(loggedInUserId)) {
@@ -62,8 +59,6 @@ public class MessageFragment extends Fragment implements MessageUserAdapter.OnUs
                         allUsersList.add(user);
                     }
                 }
-
-
                 filteredUsersList.clear();
                 filteredUsersList.addAll(allUsersList);
                 messageUserAdapter.notifyDataSetChanged();
@@ -84,7 +79,6 @@ public class MessageFragment extends Fragment implements MessageUserAdapter.OnUs
                 getParentFragmentManager().popBackStack();
             }
         });
-
         return view;
     }
 
@@ -95,14 +89,11 @@ public class MessageFragment extends Fragment implements MessageUserAdapter.OnUs
 
     @Override
     public void onUserItemClick(User user) {
-
         String recipientUserId = user.getUserId();
-
         NewMessageFragment newMessageFragment = new NewMessageFragment();
         Bundle args = new Bundle();
         args.putString("recipientUserId", recipientUserId);
         newMessageFragment.setArguments(args);
-
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, newMessageFragment)
                 .addToBackStack(null)

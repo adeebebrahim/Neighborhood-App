@@ -57,17 +57,14 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
         CommunityComment comment = commentList.get(position);
         holder.commentTextView.setText(comment.getText());
 
-
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(comment.getUserId());
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-
                     holder.nameTextView.setText(user.getName());
                     holder.usernameTextView.setText("@" + user.getUsername());
-
                     if (!TextUtils.isEmpty(user.getImage())) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(holder.itemView.getContext())
@@ -76,7 +73,6 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
                                 .placeholder(R.drawable.ic_profile)
                                 .into(holder.profileImageView);
                     } else {
-
                         Glide.with(holder.itemView.getContext()).load(R.drawable.ic_profile).into(holder.profileImageView);
                     }
                 }
@@ -84,7 +80,6 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
 
@@ -92,19 +87,16 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
             @Override
             public boolean onLongClick(View v) {
                 if (comment.getUserId().equals(getCurrentUserId())) {
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
                     builder.setMessage("Delete this comment?");
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             deleteCommunityComment(comment);
                         }
                     });
                     builder.setNegativeButton("No", null);
                     builder.show();
-
                     return true;
                 } else {
                     showCommentReportReasonDialog(comment);
@@ -139,7 +131,6 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
         commentList.remove(comment);
         notifyDataSetChanged();
 
-
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("CommunityComments").child(comment.getPostId()).child(comment.getCommentId());
         commentsRef.removeValue();
     }
@@ -152,9 +143,7 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
     private void showCommentReportReasonDialog(CommunityComment comment) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Report Comment");
-
         View reportReasonsView = LayoutInflater.from(context).inflate(R.layout.dialog_report_reasons, null);
-
         String[] reportReasons = {"Inappropriate content", "Spam", "Harassment", "Other"};
 
         ListView reasonsListView = reportReasonsView.findViewById(R.id.reasons_list_view);
@@ -162,7 +151,6 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
         reasonsListView.setAdapter(reasonsAdapter);
 
         builder.setView(reportReasonsView);
-
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -171,7 +159,6 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
                     String selectedReason = reportReasons[selectedPosition];
                     showCommentReportConfirmationDialog(comment, selectedReason);
                 } else {
-
 
                 }
             }
@@ -186,14 +173,12 @@ public class CommunityCommentAdapter extends RecyclerView.Adapter<CommunityComme
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Confirm Report");
         builder.setMessage("Are you sure you want to report this comment for the following reason?\n\n" + reason);
-
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 saveCommentReportToFirebase(comment, reason);
             }
         });
-
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }

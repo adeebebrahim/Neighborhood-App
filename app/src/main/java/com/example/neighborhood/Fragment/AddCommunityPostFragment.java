@@ -35,7 +35,6 @@ public class AddCommunityPostFragment extends Fragment {
     private Button btnCancel;
 
     public AddCommunityPostFragment() {
-
     }
 
     @Override
@@ -77,7 +76,6 @@ public class AddCommunityPostFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String currentUserId = currentUser.getUid();
-
             usersRef.child(currentUserId).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -98,7 +96,6 @@ public class AddCommunityPostFragment extends Fragment {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 }
             });
         }
@@ -111,21 +108,13 @@ public class AddCommunityPostFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
-
-
             String topicId = communityPostsRef.push().getKey();
-
-
             long timestamp = System.currentTimeMillis();
 
             CommunityPost newPost = new CommunityPost(userId, topic, description, topicId, timestamp);
             communityPostsRef.child(topicId).setValue(newPost);
-
-
             topicEditText.getText().clear();
             descriptionEditText.getText().clear();
-
-
             getParentFragmentManager().popBackStack();
         }
     }

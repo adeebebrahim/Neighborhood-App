@@ -66,16 +66,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = postList.get(position);
         String userId = post.getUserId();
-
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
 
         usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-
                     if (user.getImage() != null && !user.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(context)
@@ -99,14 +96,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             }
         });
 
-
         holder.postTextView.setText(post.getPostText());
-
 
         CharSequence timestampFormatted = DateUtils.getRelativeTimeSpanString(post.getTimestamp(),
                 System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
         holder.timestampTextView.setText(timestampFormatted);
-
 
         if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
             holder.postImageView.setVisibility(View.VISIBLE);
@@ -119,28 +113,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             @Override
             public boolean onLongClick(View v) {
                 if (userId.equals(currentUser.getUid())) {
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setMessage("Delete this post?");
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             deletePost(post);
                         }
                     });
                     builder.setNegativeButton("No", null);
                     builder.show();
-
                     return true;
                 } else {
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setMessage("Report this post?");
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             showReportReasonDialog(post);
                         }
                     });
@@ -160,24 +149,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (post.getLikedByUsers().contains(currentUser.getUid())) {
-
                     post.getLikedByUsers().remove(currentUser.getUid());
                     holder.likeButton.setImageResource(R.drawable.ic_likeoutlined);
                 } else {
-
                     post.getLikedByUsers().add(currentUser.getUid());
                     holder.likeButton.setImageResource(R.drawable.ic_like);
                 }
-
-
                 DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts").child(post.getPostId());
                 postsRef.child("likedByUsers").setValue(post.getLikedByUsers());
             }
         });
-
-
 
         holder.commentButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,8 +167,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 navigateToPostCommentsFragment(post);
             }
         });
-
-
         holder.profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,12 +189,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         int numLikes = post.getLikedByUsers().size();
         holder.likeTextView.setText("Likes " + numLikes);
 
-
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
         commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 int numComments = (int) dataSnapshot.getChildrenCount();
                 holder.commentTextView.setText("Comments " + numComments);
             }
@@ -272,10 +250,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         Bundle bundle = new Bundle();
         bundle.putParcelable("post", post);
 
-
         PostCommentsFragment commentsFragment = new PostCommentsFragment();
         commentsFragment.setArguments(bundle);
-
 
         context.getSupportFragmentManager()
                 .beginTransaction()
@@ -285,14 +261,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     private void deletePost(Post post) {
-
         postList.remove(post);
         notifyDataSetChanged();
 
-
         DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts");
         postsRef.child(post.getPostId()).removeValue();
-
 
         if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
             StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(post.getImageUrl());
@@ -303,7 +276,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
             });
         }
-
 
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
         commentsRef.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -323,17 +295,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Report Post");
 
-
         View reportReasonsView = LayoutInflater.from(context).inflate(R.layout.dialog_report_reasons, null);
-
         String[] reportReasons = {"Inappropriate content", "Spam", "Harassment", "Other"};
 
         ListView reasonsListView = reportReasonsView.findViewById(R.id.reasons_list_view);
         ArrayAdapter<String> reasonsAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_single_choice, reportReasons);
         reasonsListView.setAdapter(reasonsAdapter);
-
         builder.setView(reportReasonsView);
-
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -343,36 +311,27 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     showReportConfirmationDialog(post, selectedReason);
                 } else {
 
-
                 }
             }
         });
-
         builder.setNegativeButton("Cancel", null);
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
-
-
     private void showReportConfirmationDialog(Post post, String reason) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Confirm Report");
         builder.setMessage("Are you sure you want to report this post for the following reason?\n\n" + reason);
-
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 saveReportToFirebase(post, reason);
             }
         });
-
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }
-
-
 
     private void saveReportToFirebase(Post post, String reason) {
         DatabaseReference reportsRef = FirebaseDatabase.getInstance().getReference().child("Reports");

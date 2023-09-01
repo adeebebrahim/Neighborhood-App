@@ -82,8 +82,6 @@ public class NewMessageFragment extends Fragment {
         }
 
         if (!isAdapterSet) {
-
-
             isAdapterSet = true;
         }
 
@@ -93,10 +91,7 @@ public class NewMessageFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User recipientUser = dataSnapshot.getValue(User.class);
                 if (recipientUser != null) {
-
                     recipientNameTextView.setText(recipientUser.getName());
-
-
                     if (recipientUser.getImage() != null && !recipientUser.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(requireContext())
@@ -105,7 +100,6 @@ public class NewMessageFragment extends Fragment {
                                 .placeholder(R.drawable.ic_profile)
                                 .into(profileImageView);
                     } else {
-
                         Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                     }
                 }
@@ -120,7 +114,6 @@ public class NewMessageFragment extends Fragment {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 sendMessage();
             }
         });
@@ -132,7 +125,6 @@ public class NewMessageFragment extends Fragment {
                 getParentFragmentManager().popBackStack();
             }
         });
-
         return view;
     }
 
@@ -184,7 +176,6 @@ public class NewMessageFragment extends Fragment {
         String senderUserId = getCurrentUserId();
         String chatId = getChatId();
 
-
         if (violatesRules(messageText)) {
             showGuidelinesViolationDialog();
             return;
@@ -224,9 +215,6 @@ public class NewMessageFragment extends Fragment {
         if (currentUser != null && recipientUserId != null) {
             String currentUserUid = currentUser.getUid();
             String otherUserUid = recipientUserId;
-
-
-
             if (currentUserUid.compareTo(otherUserUid) < 0) {
                 return currentUserUid + "_" + otherUserUid;
             } else {
@@ -237,20 +225,14 @@ public class NewMessageFragment extends Fragment {
     }
 
     private boolean violatesRules(String text) {
-
         String[] ruleKeywords = {"fuck","bitch","motherfucker","ass", "nigga",
                 "asshole","twat","cunt"};
-
-
         text = text.toLowerCase();
-
-
         for (String keyword : ruleKeywords) {
             if (text.contains(keyword)) {
                 return true;
             }
         }
-
         return false;
     }
 }

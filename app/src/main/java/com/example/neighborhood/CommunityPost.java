@@ -97,7 +97,6 @@ public class CommunityPost implements Parcelable {
         }
     };
 
-    // Add this method to get the user
     public String getUser() {
         return userId;
     }

@@ -9,10 +9,8 @@ public class Event {
     private String userId;
     private long timestamp;
 
-
     public Event() {
     }
-
 
     public Event(String eventId, String title, String date, String time, String description, String userId, long timestamp) {
         this.eventId = eventId;
@@ -23,7 +21,6 @@ public class Event {
         this.userId = userId;
         this.timestamp = timestamp;
     }
-
 
     public String getEventId() {
         return eventId;

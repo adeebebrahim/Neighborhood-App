@@ -69,12 +69,9 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
         profileImageView = rootView.findViewById(R.id.profile_image);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
 
-
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-
                 loadUserPosts();
             }
         });
@@ -93,29 +90,22 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
         postAdapter = new PostAdapter(postList, (AppCompatActivity) getActivity(), this);
         postRecyclerView.setAdapter(postAdapter);
 
-
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
 
-
             DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
-
-
             usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                     User user = dataSnapshot.getValue(User.class);
                     if (user != null) {
-
                         nameTextView.setText(user.getName());
                         usernameTextView.setText("@" + user.getUsername());
                         bioTextView.setText(user.getBio());
                         followersTextView.setText("Followers: " + user.getFollowerCount());
                         followingTextView.setText("Following: " + user.getFollowingCount());
-
-
                         if (user.getImage() != null && !user.getImage().isEmpty()) {
                             RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                             Glide.with(requireContext())
@@ -124,22 +114,17 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
                                     .error(R.drawable.ic_profile)
                                     .into(profileImageView);
                         } else {
-
                             Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                         }
-
-
                         loadUserPosts();
                     }
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
             });
         }
-
         return rootView;
     }
 
@@ -148,40 +133,31 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
         postsRef.orderByChild("userId").equalTo(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 postList.clear();
-
-
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Post post = postSnapshot.getValue(Post.class);
                     if (post != null) {
                         postList.add(post);
                     }
                 }
-
-
                 Collections.sort(postList, new Comparator<Post>() {
                     @Override
                     public int compare(Post post1, Post post2) {
                         return Long.compare(post2.getTimestamp(), post1.getTimestamp());
                     }
                 });
-
-
                 postAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
     private void navigateToEditProfile() {
-
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, new EditProfileFragment());
         transaction.addToBackStack(null);
