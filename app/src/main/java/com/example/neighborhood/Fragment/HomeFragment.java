@@ -1,6 +1,5 @@
 package com.example.neighborhood.Fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -16,11 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.neighborhood.Login;
-import com.example.neighborhood.Post;
 import com.example.neighborhood.Adapter.PostAdapter;
+import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
-import com.example.neighborhood.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,7 +24,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +39,7 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
     private SwipeRefreshLayout swipeRefreshLayout;
 
     public HomeFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -52,7 +47,7 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
         postRecyclerView = rootView.findViewById(R.id.post_list);
-        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout); // Initialize the SwipeRefreshLayout
+        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
 
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         postList = new ArrayList<>();
@@ -70,8 +65,8 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
         searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle search icon click here
-                // Navigate to SearchFragment
+
+
                 getParentFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new SearchFragment())
                         .addToBackStack(null)
@@ -82,8 +77,8 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
         messageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle message icon click here
-                // Navigate to MessageFragment
+
+
                 getParentFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new MessageFragment())
                         .addToBackStack(null)
@@ -91,12 +86,12 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
             }
         });
 
-        // Set up swipe-to-refresh action
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Handle the refresh action
-                // For example, call fetchPostsFromFirebase() to reload the posts
+
+
                 fetchPostsFromFirebase();
             }
         });
@@ -117,14 +112,14 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
                     followedUserIds.add(userSnapshot.getKey());
                 }
 
-                followedUserIds.add(currentUser.getUid()); // Add current user ID
+                followedUserIds.add(currentUser.getUid());
 
                 fetchPostsFromUsers(followedUserIds);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle any errors that occur while fetching data
+
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -159,7 +154,7 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle any errors that occur while fetching data
+
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -195,7 +190,7 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle any errors that occur while fetching data
+
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -208,13 +203,13 @@ public class HomeFragment extends Fragment implements PostAdapter.UserProfileCli
 
     public void navigateToUserProfile(String userId) {
         if (currentUser != null && userId.equals(currentUser.getUid())) {
-            // Navigate to the user's own profile
+
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new ProfileFragment())
                     .addToBackStack(null)
                     .commit();
         } else {
-            // Navigate to the other user's profile
+
             OtherUserProfileFragment otherUserProfileFragment = new OtherUserProfileFragment();
             Bundle args = new Bundle();
             args.putString("userId", userId);

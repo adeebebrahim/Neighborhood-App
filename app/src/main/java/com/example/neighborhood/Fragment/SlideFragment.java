@@ -1,18 +1,16 @@
 package com.example.neighborhood.Fragment;
 
-// SlideFragment.java
-import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 
-import android.view.Gravity;
+
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.example.neighborhood.OnboardingActivity;
 import com.example.neighborhood.R;
@@ -23,7 +21,7 @@ public class SlideFragment extends Fragment {
     private int position;
 
     public SlideFragment() {
-        // Required empty public constructor
+
     }
 
     public static SlideFragment newInstance(int position) {
@@ -50,36 +48,36 @@ public class SlideFragment extends Fragment {
         TextView textView = view.findViewById(R.id.textView);
         TextView moretextView = view.findViewById(R.id.moretextView);
 
-        // Check the slide position
+
         if (position == 0) {
             textView.setText("Welcome to the Neighborhood App!");
-            textView.setVisibility(View.VISIBLE); // Show the welcome message
+            textView.setVisibility(View.VISIBLE);
         } else if (position == 1) {
             textView.setText("Learn about your neighborhood and stay connected!");
             moretextView.setText("• Discover local businesses and services in your area." +
                     "\n• Stay informed about community events and activities." +
                     "\n• Connect with neighbors to share recommendations and tips." +
                     "\n• Join discussions on local topics and issues.");
-            // You can also update the image here if needed
+
         } else if (position == 2) {
             textView.setText("Practice good digital citizenship and follow app guidelines.");
             moretextView.setText("• Respect others' privacy and personal information." +
                     "\n• Avoid sharing sensitive or inappropriate content." +
                     "\n• Be respectful and considerate in your interactions." +
                     "\n• Follow community guidelines and rules.");
-            // You can also update the image here if needed
-            final Button finishButton = view.findViewById(R.id.finishButton);
-            finishButton.setVisibility(View.VISIBLE); // Show the "Finish" button
 
-            // Set layout parameters for the button (positioning in bottom-right corner)
+            final Button finishButton = view.findViewById(R.id.finishButton);
+            finishButton.setVisibility(View.VISIBLE);
+
+
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT
             );
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM); // Align to bottom
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END); // Align to right
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
             int margin = (int) getResources().getDimension(R.dimen.button_margin);
-            layoutParams.setMargins(0, 0, margin, margin); // Set margins (left, top, right, bottom)
+            layoutParams.setMargins(0, 0, margin, margin);
             finishButton.setLayoutParams(layoutParams);
 
             finishButton.setOnClickListener(new View.OnClickListener() {

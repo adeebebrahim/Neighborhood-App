@@ -10,15 +10,14 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.neighborhood.Adapter.UserAdapter;
-import com.example.neighborhood.User;
 import com.example.neighborhood.R;
+import com.example.neighborhood.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,22 +38,22 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
     private List<User> filteredUsers;
 
     public SearchFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_search, container, false);
 
-        // Find the views within the fragment
+
         searchBar = rootView.findViewById(R.id.search_bar);
         Button cancelButton = rootView.findViewById(R.id.cancel_button);
 
-        // Initialize RecyclerView and UserAdapter
+
         userRecyclerView = rootView.findViewById(R.id.user_list);
         userRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         allUsers = new ArrayList<>();
-        filteredUsers = new ArrayList<>(); // Clear the filteredUsers list initially
+        filteredUsers = new ArrayList<>();
         userAdapter = new UserAdapter(requireContext(), filteredUsers, this);
         userRecyclerView.setAdapter(userAdapter);
 
@@ -71,11 +70,11 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle any errors that occur while fetching data
+
             }
         });
 
-        // Set click listener for the cancel button
+
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,17 +84,17 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
             }
         });
 
-        // Implement search logic here (e.g., filtering users based on the search query)
+
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String query = charSequence.toString().trim(); // Remove leading/trailing white spaces
+                String query = charSequence.toString().trim();
 
                 if (query.isEmpty()) {
-                    // If the search query is empty, clear the filtered user list to hide all users
+
                     filteredUsers.clear();
                 } else {
-                    // If the search query is not empty, filter the users based on the query
+
                     filterUsers(query);
                 }
 
@@ -104,13 +103,13 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String query = charSequence.toString().trim(); // Remove leading/trailing white spaces
+                String query = charSequence.toString().trim();
 
                 if (query.isEmpty()) {
-                    // If the search query is empty, clear the filtered user list to hide all users
+
                     filteredUsers.clear();
                 } else {
-                    // If the search query is not empty, filter the users based on the query
+
                     filterUsers(query);
                 }
 
@@ -149,11 +148,11 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
     }
 
     private void navigateToProfileFragment() {
-        // Navigate to the user's own profile fragment
+
         ProfileFragment profileFragment = new ProfileFragment();
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, profileFragment);
-        transaction.addToBackStack(null); // Allow navigating back
+        transaction.addToBackStack(null);
         transaction.commit();
     }
 
@@ -165,7 +164,7 @@ public class SearchFragment extends Fragment implements UserAdapter.UserProfileC
 
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
-        transaction.addToBackStack(null); // Allow navigating back
+        transaction.addToBackStack(null);
         transaction.commit();
     }
 }

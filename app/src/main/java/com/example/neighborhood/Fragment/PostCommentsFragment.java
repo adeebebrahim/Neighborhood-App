@@ -62,7 +62,7 @@ public class PostCommentsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_post_comments, container, false);
 
-        // Initialize views
+
         profileImageView = view.findViewById(R.id.profile_image_view);
         nameTextView = view.findViewById(R.id.name_text_view);
         usernameTextView = view.findViewById(R.id.username_text_view);
@@ -77,18 +77,18 @@ public class PostCommentsFragment extends Fragment {
         likeTextView = view.findViewById(R.id.like_text_view);
         commentTextView = view.findViewById(R.id.comment_text_view);
 
-        // Retrieve post data from arguments
+
         Bundle arguments = getArguments();
         if (arguments != null) {
             post = arguments.getParcelable("post");
             if (post != null) {
-                // Retrieve user data and populate views
+
                 retrieveUserFromDatabase(post.getUserId());
 
-                // Populate other post-related views
+
                 postTextView.setText(post.getPostText());
 
-                // Set post image (new code snippet)
+
                 if (!TextUtils.isEmpty(post.getImageUrl())) {
                     postImageView.setVisibility(View.VISIBLE);
                     Picasso.get().load(post.getImageUrl()).placeholder(R.drawable.ic_addimage).into(postImageView);
@@ -96,49 +96,49 @@ public class PostCommentsFragment extends Fragment {
                     postImageView.setVisibility(View.GONE);
                 }
 
-                // Set up RecyclerView for comments
+
                 commentList = new ArrayList<>();
                 commentAdapter = new CommentAdapter(commentList, requireContext());
                 commentsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 commentsRecyclerView.setAdapter(commentAdapter);
 
-                // Retrieve and populate comments for the post
+
                 retrieveCommentsForPost(post.getPostId());
             }
         }
 
-        // Set up comment submission button
+
         submitCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String commentText = commentEditText.getText().toString().trim();
                 if (!commentText.isEmpty()) {
-                    // Generate a unique commentId
+
                     String commentId = FirebaseDatabase.getInstance().getReference().push().getKey();
 
-                    // Get the current user's userId
+
                     String userId = getCurrentUserId();
 
-                    // Get the postId from the retrieved post
+
                     String postId = post.getPostId();
 
-                    // Get the current timestamp
+
                     long timestamp = System.currentTimeMillis();
 
-                    // Create a new Comment object
+
                     Comment newComment = new Comment(userId, postId, commentId, timestamp, commentText);
 
-                    // Save the comment to the database
+
                     DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments");
                     commentsRef.child(postId).child(commentId).setValue(newComment)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-                                        // Clear the comment text
+
                                         commentEditText.setText("");
                                     } else {
-                                        // Handle error
+
                                     }
                                 }
                             });
@@ -150,12 +150,12 @@ public class PostCommentsFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Navigate back to the previous fragment
+
                 getParentFragmentManager().popBackStack();
             }
         });
 
-        // Inside your onCreateView() or onViewCreated() method
+
         if (post.getLikedByUsers().contains(getCurrentUserId())) {
             likeButton.setImageResource(R.drawable.ic_like);
         } else {
@@ -167,39 +167,39 @@ public class PostCommentsFragment extends Fragment {
             public void onClick(View v) {
                 DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("posts").child(post.getPostId());
 
-                // Check if the user has already liked the post
+
                 if (post.getLikedByUsers().contains(getCurrentUserId())) {
-                    // Remove user's like
+
                     post.getLikedByUsers().remove(getCurrentUserId());
                     likeButton.setImageResource(R.drawable.ic_likeoutlined);
                 } else {
-                    // Add user's like
+
                     post.getLikedByUsers().add(getCurrentUserId());
                     likeButton.setImageResource(R.drawable.ic_like);
                 }
 
-                // Update the post's likedByUsers field in the database
+
                 postsRef.child("likedByUsers").setValue(post.getLikedByUsers());
             }
         });
 
-        // Inside your onCreateView() or onViewCreated() method
+
         int numLikes = post.getLikedByUsers().size();
         likeTextView.setText("Likes " + numLikes);
 
-        // Query the database to count the number of comments
+
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostId());
         commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Get the number of comments
+
                 int numComments = (int) dataSnapshot.getChildrenCount();
                 commentTextView.setText("Comments " + numComments);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle errors
+
             }
         });
 
@@ -214,12 +214,12 @@ public class PostCommentsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    // Set user data to the views
+
                     nameTextView.setText(user.getName());
                     usernameTextView.setText("@" + user.getUsername());
 
                     if (!TextUtils.isEmpty(user.getImage())) {
-                        // Load the user profile image with circular cropping
+
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(requireContext())
                                 .load(user.getImage())
@@ -227,7 +227,7 @@ public class PostCommentsFragment extends Fragment {
                                 .placeholder(R.drawable.ic_profile)
                                 .into(profileImageView);
                     } else {
-                        // Load default profile image if user's image is empty
+
                         Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                     }
                 }
@@ -235,7 +235,7 @@ public class PostCommentsFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle database error
+
             }
         });
     }
@@ -246,7 +246,7 @@ public class PostCommentsFragment extends Fragment {
         commentsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                commentList.clear(); // Clear existing comments
+                commentList.clear();
                 for (DataSnapshot commentSnapshot : dataSnapshot.getChildren()) {
                     Comment comment = commentSnapshot.getValue(Comment.class);
                     if (comment != null) {
@@ -258,7 +258,7 @@ public class PostCommentsFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle database error
+
             }
         });
     }

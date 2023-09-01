@@ -78,11 +78,11 @@ public class NewMessageFragment extends Fragment {
         if (currentUser != null) {
             loadMessages();
         } else {
-            // Handle the case when the user is not logged in
+
         }
 
         if (!isAdapterSet) {
-            // Set up the MessageAdapter only if it's not already set
+
 
             isAdapterSet = true;
         }
@@ -93,10 +93,10 @@ public class NewMessageFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User recipientUser = dataSnapshot.getValue(User.class);
                 if (recipientUser != null) {
-                    // Update the TextView elements with the recipient user's information
+
                     recipientNameTextView.setText(recipientUser.getName());
 
-                    // Load the recipient user's profile image using Glide
+
                     if (recipientUser.getImage() != null && !recipientUser.getImage().isEmpty()) {
                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                         Glide.with(requireContext())
@@ -105,7 +105,7 @@ public class NewMessageFragment extends Fragment {
                                 .placeholder(R.drawable.ic_profile)
                                 .into(profileImageView);
                     } else {
-                        // If profile image URL is empty, load a default image
+
                         Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                     }
                 }
@@ -113,7 +113,7 @@ public class NewMessageFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle errors if any
+
             }
         });
 
@@ -151,8 +151,8 @@ public class NewMessageFragment extends Fragment {
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
-                    // Handle child changed event if needed
-                    messageList.clear(); // Clear existing messages before adding new ones
+
+                    messageList.clear();
                     Message message = dataSnapshot.getValue(Message.class);
                     if (message != null) {
                         messageList.add(message);
@@ -162,17 +162,17 @@ public class NewMessageFragment extends Fragment {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    // Handle child removed event if needed
+
                 }
 
                 @Override
                 public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
-                    // Handle child moved event if needed
+
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle database error if needed
+
                 }
             });
         }
@@ -184,7 +184,7 @@ public class NewMessageFragment extends Fragment {
         String senderUserId = getCurrentUserId();
         String chatId = getChatId();
 
-        // Perform text analysis here
+
         if (violatesRules(messageText)) {
             showGuidelinesViolationDialog();
             return;
@@ -196,9 +196,9 @@ public class NewMessageFragment extends Fragment {
 
             if (messageId != null) {
                 Message message = new Message(messageText, senderUserId, recipientUserId);
-                message.setMessageId(messageId); // Set the message ID
+                message.setMessageId(messageId);
                 chatRef.child(messageId).setValue(message);
-                messageEditText.setText(""); // Clear the message text field after sending
+                messageEditText.setText("");
             }
         }
     }
@@ -225,8 +225,8 @@ public class NewMessageFragment extends Fragment {
             String currentUserUid = currentUser.getUid();
             String otherUserUid = recipientUserId;
 
-            // Create a consistent chat ID by concatenating the user IDs
-            // in a specific order (alphabetical)
+
+
             if (currentUserUid.compareTo(otherUserUid) < 0) {
                 return currentUserUid + "_" + otherUserUid;
             } else {
@@ -237,20 +237,20 @@ public class NewMessageFragment extends Fragment {
     }
 
     private boolean violatesRules(String text) {
-        // Define a list of keywords that violate rules
+
         String[] ruleKeywords = {"fuck","bitch","motherfucker","ass", "nigga",
                 "asshole","twat","cunt"};
 
-        // Convert text to lowercase for case-insensitive matching
+
         text = text.toLowerCase();
 
-        // Check if any rule keyword is present in the text
+
         for (String keyword : ruleKeywords) {
             if (text.contains(keyword)) {
-                return true; // Text violates rules
+                return true;
             }
         }
 
-        return false; // Text is acceptable
+        return false;
     }
 }

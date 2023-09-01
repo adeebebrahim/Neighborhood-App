@@ -1,12 +1,12 @@
 package com.example.neighborhood;
 
 public class Message {
-    private String messageId; // New field for message ID
+    private String messageId;
     private String messageText;
     private String senderUserId;
     private String recipientUserId;
 
-    // Default constructor for Firebase
+
     public Message() {
     }
 

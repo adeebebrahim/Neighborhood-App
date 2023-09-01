@@ -53,7 +53,7 @@ public class AddFragment extends Fragment {
     private String currentUserId;
 
     public AddFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -94,7 +94,7 @@ public class AddFragment extends Fragment {
                     return;
                 }
 
-                // Perform text analysis here
+
                 if (violatesRules(postText)) {
                     showGuidelinesViolationDialog();
                     return;
@@ -104,12 +104,12 @@ public class AddFragment extends Fragment {
                 progressDialog.setCancelable(false);
                 progressDialog.show();
 
-                // Check if an image is selected
+
                 if (imageUri != null) {
-                    // Upload the image to Firebase Storage
+
                     uploadImageAndSavePost(postText);
                 } else {
-                    // No image selected, just save the post without the image
+
                     savePostToFirebase(postText, null);
                 }
             }
@@ -153,7 +153,7 @@ public class AddFragment extends Fragment {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle errors
+
                 }
             });
         }
@@ -170,9 +170,9 @@ public class AddFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == getActivity().RESULT_OK && data != null) {
             imageUri = data.getData();
-            addImageIcon.setVisibility(View.VISIBLE); // Hide the "Add Image" icon
-            selectedImage.setVisibility(View.VISIBLE); // Show the selected image view
-            selectedImage.setImageURI(imageUri); // Set the selected image
+            addImageIcon.setVisibility(View.VISIBLE);
+            selectedImage.setVisibility(View.VISIBLE);
+            selectedImage.setImageURI(imageUri);
         }
     }
 
@@ -232,21 +232,21 @@ public class AddFragment extends Fragment {
     }
 
     private boolean violatesRules(String text) {
-        // Define a list of keywords that violate rules
+
         String[] ruleKeywords = {"fuck","bitch","motherfucker","ass", "nigga",
                 "asshole","twat","cunt"};
 
-        // Convert text to lowercase for case-insensitive matching
+
         text = text.toLowerCase();
 
-        // Check if any rule keyword is present in the text
+
         for (String keyword : ruleKeywords) {
             if (text.contains(keyword)) {
-                return true; // Text violates rules
+                return true;
             }
         }
 
-        return false; // Text is acceptable
+        return false;
     }
 
     private void showGuidelinesViolationDialog() {

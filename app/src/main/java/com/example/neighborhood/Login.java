@@ -34,7 +34,7 @@ public class Login extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -106,7 +106,7 @@ public class Login extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Forgot Password");
 
-        // Set up the dialog's content view with an EditText for the user's email
+
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         input.setHint("Enter your email");
@@ -117,7 +117,7 @@ public class Login extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String email = input.getText().toString().trim();
                 if (isValidEmail(email)) {
-                    // Here, you can add logic to send a password reset link to the provided email
+
                     sendPasswordResetLink(email);
                 } else {
                     Toast.makeText(Login.this, "Please enter a valid email address",

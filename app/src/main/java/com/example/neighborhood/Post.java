@@ -14,11 +14,11 @@ public class Post implements Parcelable {
     private String imageUrl;
     private long timestamp;
     private String userId;
-    private List<String> likedByUsers; // List of user IDs who liked the post
+    private List<String> likedByUsers;
 
     public Post() {
-        // Empty constructor required for Firebase Realtime Database
-        likedByUsers = new ArrayList<>(); // Initialize the list
+
+        likedByUsers = new ArrayList<>();
     }
 
     public Post(String userName, String userUsername, String postText, String postId, String imageUrl, long timestamp, String userId) {
@@ -96,7 +96,7 @@ public class Post implements Parcelable {
         this.likedByUsers = likedByUsers;
     }
 
-    // Parcelable constructor
+
     protected Post(Parcel in) {
         userName = in.readString();
         userUsername = in.readString();
@@ -137,5 +137,5 @@ public class Post implements Parcelable {
         }
     };
 
-    // Other methods, getters, and setters
+
 }

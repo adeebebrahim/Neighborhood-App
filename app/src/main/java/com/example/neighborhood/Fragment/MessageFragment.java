@@ -8,13 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.neighborhood.Adapter.MessageUserAdapter;
-import com.example.neighborhood.User;
 import com.example.neighborhood.R;
+import com.example.neighborhood.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -49,7 +49,7 @@ public class MessageFragment extends Fragment implements MessageUserAdapter.OnUs
         usersRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                allUsersList.clear(); // Clear the list before populating
+                allUsersList.clear();
 
                 String loggedInUserId = getCurrentUserId();
 
@@ -58,12 +58,12 @@ public class MessageFragment extends Fragment implements MessageUserAdapter.OnUs
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
                     if (user != null && user.getUserId() != null && !user.getUserId().equals(loggedInUserId)) {
-                        Log.d("User Debug", "User ID: " + user.getUserId()); // Add this line
+                        Log.d("User Debug", "User ID: " + user.getUserId());
                         allUsersList.add(user);
                     }
                 }
 
-                // Set the filtered users list to the adapter
+
                 filteredUsersList.clear();
                 filteredUsersList.addAll(allUsersList);
                 messageUserAdapter.notifyDataSetChanged();
@@ -71,7 +71,7 @@ public class MessageFragment extends Fragment implements MessageUserAdapter.OnUs
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle database error if needed
+
             }
         });
 
@@ -95,7 +95,7 @@ public class MessageFragment extends Fragment implements MessageUserAdapter.OnUs
 
     @Override
     public void onUserItemClick(User user) {
-        // Handle user item click
+
         String recipientUserId = user.getUserId();
 
         NewMessageFragment newMessageFragment = new NewMessageFragment();

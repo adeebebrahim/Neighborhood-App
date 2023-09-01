@@ -1,6 +1,5 @@
 package com.example.neighborhood.Fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -21,9 +19,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.neighborhood.Login;
-import com.example.neighborhood.Post;
 import com.example.neighborhood.Adapter.PostAdapter;
+import com.example.neighborhood.Post;
 import com.example.neighborhood.R;
 import com.example.neighborhood.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,7 +30,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,12 +52,12 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
     private SwipeRefreshLayout swipeRefreshLayout;
 
     public ProfileFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
 
         nameTextView = rootView.findViewById(R.id.name_text);
@@ -73,12 +69,12 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
         profileImageView = rootView.findViewById(R.id.profile_image);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
 
-        // Set up swipe-to-refresh action
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Handle the refresh action
-                // For example, call loadUserPosts() to reload the user's posts
+
+
                 loadUserPosts();
             }
         });
@@ -90,56 +86,56 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
             }
         });
 
-        // Initialize RecyclerView and PostAdapter
+
         postRecyclerView = rootView.findViewById(R.id.posts_recycler_view);
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         postList = new ArrayList<>();
         postAdapter = new PostAdapter(postList, (AppCompatActivity) getActivity(), this);
         postRecyclerView.setAdapter(postAdapter);
 
-        // Get the logged-in user
+
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
 
-            // Get a reference to the "users" node in the Firebase database
+
             DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
 
-            // Read the user's data from the database
+
             usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    // Retrieve user information
+
                     User user = dataSnapshot.getValue(User.class);
                     if (user != null) {
-                        // Update the TextView elements with the retrieved user information
+
                         nameTextView.setText(user.getName());
                         usernameTextView.setText("@" + user.getUsername());
                         bioTextView.setText(user.getBio());
                         followersTextView.setText("Followers: " + user.getFollowerCount());
                         followingTextView.setText("Following: " + user.getFollowingCount());
 
-                        // Load the profile image using Picasso
+
                         if (user.getImage() != null && !user.getImage().isEmpty()) {
                             RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
-                            Glide.with(requireContext()) // Use requireContext() instead of getActivity()
+                            Glide.with(requireContext())
                                     .load(user.getImage())
                                     .apply(requestOptions)
-                                    .error(R.drawable.ic_profile) // Set the default image on error
+                                    .error(R.drawable.ic_profile)
                                     .into(profileImageView);
                         } else {
-                            // If profile image URL is empty, load a default image
+
                             Glide.with(requireContext()).load(R.drawable.ic_profile).into(profileImageView);
                         }
 
-                        // Load the user's posts
+
                         loadUserPosts();
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle errors if any
+
                 }
             });
         }
@@ -152,10 +148,10 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
         postsRef.orderByChild("userId").equalTo(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Clear the existing post list before adding new posts
+
                 postList.clear();
 
-                // Loop through the dataSnapshot to get all user posts and add them to the postList
+
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Post post = postSnapshot.getValue(Post.class);
                     if (post != null) {
@@ -163,7 +159,7 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
                     }
                 }
 
-                // Sort the posts by timestamp (newest first)
+
                 Collections.sort(postList, new Comparator<Post>() {
                     @Override
                     public int compare(Post post1, Post post2) {
@@ -171,29 +167,29 @@ public class ProfileFragment extends Fragment implements PostAdapter.UserProfile
                     }
                 });
 
-                // Notify the adapter that the data has changed
+
                 postAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle any errors that occur while fetching data
+
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
     private void navigateToEditProfile() {
-        // Replace the current fragment with the EditProfileFragment
+
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, new EditProfileFragment());
-        transaction.addToBackStack(null); // This line allows the user to navigate back to HomeFragment
+        transaction.addToBackStack(null);
         transaction.commit();
     }
 
     @Override
     public void onItemClick(String userId) {
-        // Handle user profile item click if needed
+
     }
 }

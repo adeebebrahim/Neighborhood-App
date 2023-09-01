@@ -1,7 +1,5 @@
 package com.example.neighborhood;
 
-import java.util.List;
-
 public class CommunityComment {
     private String userId;
     private String topicId;

@@ -25,7 +25,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 public class AddCommunityPostFragment extends Fragment {
 
@@ -36,7 +35,7 @@ public class AddCommunityPostFragment extends Fragment {
     private Button btnCancel;
 
     public AddCommunityPostFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -99,7 +98,7 @@ public class AddCommunityPostFragment extends Fragment {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle errors
+
                 }
             });
         }
@@ -113,20 +112,20 @@ public class AddCommunityPostFragment extends Fragment {
         if (currentUser != null) {
             String userId = currentUser.getUid();
 
-            // Generate a unique topicId
+
             String topicId = communityPostsRef.push().getKey();
 
-            // Get the current timestamp
+
             long timestamp = System.currentTimeMillis();
 
             CommunityPost newPost = new CommunityPost(userId, topic, description, topicId, timestamp);
             communityPostsRef.child(topicId).setValue(newPost);
 
-            // Clear input fields after posting
+
             topicEditText.getText().clear();
             descriptionEditText.getText().clear();
 
-            // Navigate back to CommunityFragment after posting
+
             getParentFragmentManager().popBackStack();
         }
     }

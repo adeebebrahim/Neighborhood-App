@@ -23,7 +23,7 @@ public class OnboardingActivity extends AppCompatActivity {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (sharedPreferences.getBoolean("completedOnboarding", false)) {
-            startLoginActivity(); // Skip onboarding if completed before
+            startLoginActivity();
         } else {
             viewPager = findViewById(R.id.viewPager);
             slidePagerAdapter = new SlidePagerAdapter(getSupportFragmentManager());
@@ -43,7 +43,7 @@ public class OnboardingActivity extends AppCompatActivity {
     private void startLoginActivity() {
         Intent intent = new Intent(this, Login.class);
         startActivity(intent);
-        finish(); // Finish the onboarding activity
+        finish();
     }
 }
 

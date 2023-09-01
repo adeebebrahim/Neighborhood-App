@@ -1,15 +1,15 @@
 package com.example.neighborhood;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.MenuItem;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.neighborhood.Fragment.HomeFragment;
-import com.example.neighborhood.Fragment.CommunityFragment;
 import com.example.neighborhood.Fragment.AddFragment;
+import com.example.neighborhood.Fragment.CommunityFragment;
 import com.example.neighborhood.Fragment.EventFragment;
+import com.example.neighborhood.Fragment.HomeFragment;
 import com.example.neighborhood.Fragment.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 

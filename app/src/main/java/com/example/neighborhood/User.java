@@ -13,14 +13,14 @@ public class User {
     private int followerCount;
     private int followingCount;
     private String username;
-    private boolean followStatus; // Add the followStatus field to track if the current user is following this user
-    private String image; // Add the image field for the profile image URL
-    private String phone; // Add the phone field for the phone number
-    private Map<String, Boolean> followers; // To store followers as key-value pairs (userUid -> true)
-    private Map<String, Boolean> following; // To store following users as key-value pairs (userUid -> true)
+    private boolean followStatus;
+    private String image;
+    private String phone;
+    private Map<String, Boolean> followers;
+    private Map<String, Boolean> following;
 
     public User() {
-        // Empty constructor required for Firebase Realtime Database
+
     }
 
     public User(String userId, String name, String email, String mobileNo, String dateOfBirth, String gender, String bio, int followerCount, int followingCount, String username, String image, String phone, Map<String, Boolean> followers, Map<String, Boolean> following) {
@@ -34,7 +34,7 @@ public class User {
         this.followerCount = followerCount;
         this.followingCount = followingCount;
         this.username = username;
-        this.followStatus = false; // Initialize followStatus as false (not following) by default
+        this.followStatus = false;
         this.image = image;
         this.phone = phone;
         this.followers = followers;
@@ -49,7 +49,7 @@ public class User {
         this.userId = userId;
     }
 
-    // Getters and setters
+
 
     public String getName() {
         return name;

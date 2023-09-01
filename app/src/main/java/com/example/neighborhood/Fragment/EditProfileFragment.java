@@ -29,7 +29,6 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.neighborhood.Login;
 import com.example.neighborhood.R;
-import com.example.neighborhood.User;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -44,14 +43,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class EditProfileFragment extends Fragment {
 
@@ -79,7 +76,7 @@ public class EditProfileFragment extends Fragment {
     private ProgressDialog progressDialog;
 
     public EditProfileFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -122,11 +119,11 @@ public class EditProfileFragment extends Fragment {
                         editTextEmail.setText(email);
                         editTextMobileno.setText(mobileNo);
 
-//                        Glide.with(requireContext())
-//                                .load(profileImage)
-//                                .into(profileImageView);
 
-                        // Load the profile image using Glide and apply circular cropping
+
+
+
+
                         if (profileImage != null && !profileImage.isEmpty()) {
                             RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                             Glide.with(requireContext())
@@ -141,12 +138,12 @@ public class EditProfileFragment extends Fragment {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle database read error if needed
+
                 }
             });
         }
 
-        // Set click listeners for the logout and edit buttons
+
         btnlogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -190,12 +187,12 @@ public class EditProfileFragment extends Fragment {
     private void logoutUser() {
         FirebaseAuth.getInstance().signOut();
 
-        // Start the Login activity
+
         Intent intent = new Intent(getActivity(), Login.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
 
-        // Finish the current activity (optional, if needed)
+
         getActivity().finish();
     }
 
@@ -341,7 +338,7 @@ public class EditProfileFragment extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
-                                                        // Load the updated profile picture with circular cropping
+
                                                         RequestOptions requestOptions = new RequestOptions().transform(new CircleCrop());
                                                         Glide.with(requireContext())
                                                                 .load(downloadUri)
@@ -485,7 +482,7 @@ public class EditProfileFragment extends Fragment {
         String userIdToDelete = currentUser.getUid();
         updateFollowersAndFollowing(userIdToDelete);
 
-        // Delete user's posts and its comments and image
+
         DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference("posts");
         Query userPostsQuery = postsRef.orderByChild("userId").equalTo(currentUser.getUid());
         userPostsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -495,39 +492,39 @@ public class EditProfileFragment extends Fragment {
                     String postId = postSnapshot.getKey();
                     DatabaseReference postRef = postsRef.child(postId);
 
-                    // Delete post comments
+
                     DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("Comments").child(postId);
                     commentsRef.removeValue();
 
-                    // Delete post image from storage if it exists
+
                     String imageUrl = postSnapshot.child("imageUrl").getValue(String.class);
                     if (imageUrl != null && !imageUrl.isEmpty()) {
                         StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
                         storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                // Image deleted successfully
+
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                // Handle failure to delete image
+
                             }
                         });
                     }
 
-                    // Delete post
+
                     postSnapshot.getRef().removeValue();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle error if needed
+
             }
         });
 
-        // Delete user's events
+
         DatabaseReference eventsRef = FirebaseDatabase.getInstance().getReference("Events");
         Query userEventsQuery = eventsRef.orderByChild("userId").equalTo(currentUser.getUid());
         userEventsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -536,18 +533,18 @@ public class EditProfileFragment extends Fragment {
                 for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()) {
                     String eventId = eventSnapshot.getKey();
                     DatabaseReference eventRef = eventsRef.child(eventId);
-                    // Delete event
+
                     eventRef.removeValue();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle error if needed
+
             }
         });
 
-        // Delete user's comments in other users' posts
+
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("Comments");
         commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -558,9 +555,9 @@ public class EditProfileFragment extends Fragment {
                         String commentId = commentSnapshot.getKey();
                         String userId = commentSnapshot.child("userId").getValue(String.class);
 
-                        // Check if the comment belongs to the user being deleted
+
                         if (userId != null && userId.equals(currentUser.getUid())) {
-                            // Delete the comment
+
                             commentSnapshot.getRef().removeValue();
                         }
                     }
@@ -569,11 +566,11 @@ public class EditProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle error if needed
+
             }
         });
 
-        // Delete user's comments in other users' community posts
+
         DatabaseReference communityCommentsRef = FirebaseDatabase.getInstance().getReference("CommunityComments");
         communityCommentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -584,9 +581,9 @@ public class EditProfileFragment extends Fragment {
                         String commentId = commentSnapshot.getKey();
                         String userId = commentSnapshot.child("userId").getValue(String.class);
 
-                        // Check if the comment belongs to the user being deleted
+
                         if (userId != null && userId.equals(currentUser.getUid())) {
-                            // Delete the comment
+
                             commentSnapshot.getRef().removeValue();
                         }
                     }
@@ -595,12 +592,12 @@ public class EditProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle error if needed
+
             }
         });
 
 
-        // Delete user's community posts and associated comments
+
         DatabaseReference communityPostsRef = FirebaseDatabase.getInstance().getReference("CommunityPosts");
         Query userCommunityPostsQuery = communityPostsRef.orderByChild("userId").equalTo(currentUser.getUid());
         userCommunityPostsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -610,14 +607,14 @@ public class EditProfileFragment extends Fragment {
                     String postId = communityPostSnapshot.getKey();
                     DatabaseReference postRef = communityPostsRef.child(postId);
 
-                    // Delete post comments
+
                     DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("CommunityComments").child(postId);
                     commentsRef.removeValue();
 
-                    // Delete post
+
                     postRef.removeValue();
 
-                    // Delete user's comments on other community posts
+
                     DatabaseReference userCommentsRef = FirebaseDatabase.getInstance().getReference("CommunityComments");
                     Query userCommentsQuery = userCommentsRef.orderByChild("userId").equalTo(currentUser.getUid());
                     userCommentsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -635,7 +632,7 @@ public class EditProfileFragment extends Fragment {
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
-                            // Handle error if needed
+
                         }
                     });
                 }
@@ -643,12 +640,12 @@ public class EditProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle error if needed
+
             }
         });
 
 
-        // Delete user's messages
+
         DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("Messages");
         messagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -660,9 +657,9 @@ public class EditProfileFragment extends Fragment {
                         String senderUserId = messageSnapshot.child("senderUserId").getValue(String.class);
                         String recipientUserId = messageSnapshot.child("recipientUserId").getValue(String.class);
 
-                        // Check if the sender or recipient is the user being deleted
+
                         if (senderUserId.equals(currentUser.getUid()) || recipientUserId.equals(currentUser.getUid())) {
-                            // Delete the message
+
                             messageSnapshot.getRef().removeValue();
                         }
                     }
@@ -671,22 +668,22 @@ public class EditProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle error if needed
+
             }
         });
 
 
 
 
-        // Delete user's profile data
+
         userRef.removeValue();
 
         currentUser.delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        // Account deleted successfully
-                        // Redirect the user to the login screen or perform any other necessary action
+
+
                         Intent intent = new Intent(requireContext(), Login.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -710,20 +707,20 @@ public class EditProfileFragment extends Fragment {
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     String userId = userSnapshot.getKey();
                     if (!userId.equals(userIdToDelete)) {
-                        // Check if the user to be deleted is following this user
+
                         if (userSnapshot.child("followers").child(userIdToDelete).exists()) {
-                            // Remove the user to be deleted from the followers of this user
+
                             userSnapshot.child("followers").child(userIdToDelete).getRef().removeValue();
-                            // Decrement the follower count
+
                             int followerCount = userSnapshot.child("followerCount").getValue(Integer.class);
                             userSnapshot.child("followerCount").getRef().setValue(followerCount - 1);
                         }
 
-                        // Check if the user to be deleted is followed by this user
+
                         if (userSnapshot.child("following").child(userIdToDelete).exists()) {
-                            // Remove the user to be deleted from the following of this user
+
                             userSnapshot.child("following").child(userIdToDelete).getRef().removeValue();
-                            // Decrement the following count
+
                             int followingCount = userSnapshot.child("followingCount").getValue(Integer.class);
                             userSnapshot.child("followingCount").getRef().setValue(followingCount - 1);
                         }
@@ -733,7 +730,7 @@ public class EditProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle error if needed
+
             }
         });
     }

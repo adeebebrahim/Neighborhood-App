@@ -4,25 +4,25 @@ public class Report {
     private String reportId;
     private String userId;
     private String postId;
-    private String commentId; // Add this field for comments
+    private String commentId;
     private String reason;
     private long timestamp;
 
     public Report() {
-        // Default constructor required for Firebase
+
     }
 
-    // Constructor for reporting posts
+
     public Report(String reportId, String userId, String postId, String reason, long timestamp) {
         this.reportId = reportId;
         this.userId = userId;
         this.postId = postId;
         this.reason = reason;
         this.timestamp = timestamp;
-        this.commentId = null; // Set commentId as null for reporting posts
+        this.commentId = null;
     }
 
-    // Constructor for reporting comments
+
     public Report(String reportId, String userId, String postId, String commentId, String reason, long timestamp) {
         this.reportId = reportId;
         this.userId = userId;
